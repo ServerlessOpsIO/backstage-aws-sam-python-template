@@ -1,0 +1,26 @@
+{
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "allOf": [
+        {
+            "$ref": "#/$defs/${{ values.collection_name_cap }}Data"
+        }
+    ],
+    "properties": {
+        "pk": {
+            "type": "string"
+        },
+        "sk": {
+            "type": "string"
+        }
+    },
+    "required": [
+        "pk",
+        "sk",
+        "id"
+    ],
+    "$defs": {
+        "${{ values.collection_name_cap }}Data": {
+            "$schema": "file:data/common/${{ values.collection_name }}-data.schema.json"
+        }
+    }
+}
