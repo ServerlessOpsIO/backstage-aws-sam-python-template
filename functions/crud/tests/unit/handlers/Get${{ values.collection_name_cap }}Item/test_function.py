@@ -19,7 +19,7 @@ from aws_lambda_powertools.utilities.typing import LambdaContext
 from common.model.${{ values.collection_name }} import ${{ values.collection_name_cap }}Data, ${{ values.collection_name_cap }}ItemKeys
 from common.test.aws import create_lambda_function_context
 
-from src.handlers.Get${{ values.collection_name_cap }}Item.types import Output, ResponseBody, ErrorResponseBody
+from src.handlers.Get${{ values.collection_name_cap }}Item.function import Output, ResponseBody, ErrorResponseBody
 
 FN_NAME = 'Get${{ values.collection_name_cap }}Item'
 DATA_DIR = './data'
