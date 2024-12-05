@@ -37,7 +37,7 @@ def create_keys() -> ${{ values.collection_name_cap }}ItemKeys:
     key = '{}#{}'.format(COLLECTION_NAME, str(uuid()))
     return ${{ values.collection_name_cap }}ItemKeys(**{'pk': key, 'sk': key})
 
-def get_keys_from_id_from_id(_id: str) -> ${{ values.collection_name_cap }}ItemKeys:
+def get_keys_from_id(_id: str) -> ${{ values.collection_name_cap }}ItemKeys:
     '''Get keys for DDB'''
     key = '{}#{}'.format(COLLECTION_NAME, _id)
     return ${{ values.collection_name_cap }}ItemKeys(**{'pk': key, 'sk': key})
