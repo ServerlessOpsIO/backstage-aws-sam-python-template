@@ -30,7 +30,7 @@ class ${{ values.collection_name_cap }}Item(${{ values.collection_name_cap }}Dat
     def get_data(self):
         return { k:v for (k, v) in self.__dict__.items() if k not in ['sk', 'pk'] }
 
-def create_keys(_id: Optional[str]) -> ${{ values.collection_name_cap }}ItemKeys:
+def create_keys(_id: Optional[str] = None) -> ${{ values.collection_name_cap }}ItemKeys:
     '''Create keys for DDB'''
     key = _id or str(uuid())
     return ${{ values.collection_name_cap }}ItemKeys(**{'pk': key, 'sk': key})

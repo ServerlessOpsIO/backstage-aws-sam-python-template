@@ -59,8 +59,13 @@ def handler(event: APIGatewayProxyEvent, context: LambdaContext) -> Output:
     LOGGER.debug('Event', extra={"message_object": event.raw_event})
 
     body = event.body or '{}'
-    item_keys = get_keys(event.path_parameters.get('id', ''))
-    item_data = ${{ values.collection_name_cap }}Data(**json.loads(body))
+    _id = event.path_parameters.get('id', '')
+    item_keys = get_keys(_id)
+    item_data = ThingData(
+        **json.loads(body),
+    )
+    # Ensure the item id is the same as the path parameter and the update won't change it.
+    item_data.id = _id
     _upsert_item(item_keys, item_data)
 
     response_body = ResponseBody(

@@ -29,9 +29,9 @@ If you expect to have multiple types of data stored in the same table you should
 
 
 ### Code
-When starting a new project the first place to start with adapting the code to meet the needs of a new project is the [`src/lib/${{ values.collection_name_cap }}Item.ts`](src/lib/${{ values.collection_name_cap }}Item.ts) file. This file contains interfaces for data and DDB table items.
+When starting a new project the first place to start with adapting the code to meet the needs of a new project is the [`src/common/common/model/${{ values.collection_name }}.py`](src/common/common/model/${{ values.collection_name }}.py) file. This file contains interfaces for data and DDB table items.
 
-Start by modifying the `${{ values.collection_name_cap }}ItemData` interface to match the shape of your data. Optionally you can choose to replace that interface with one from another module if you're working with a pre-existing data model. The existing interface definition was chosen simply to make the project work out of the box.
+Start by modifying the dataclasses to match the shape of your data. Optionally you can choose to replace that interface with one from another module if you're working with a pre-existing data model. The existing interface definition was chosen simply to make the project work out of the box.
 
 Next, modify the `createKeys()` and `getKeys()` functions as necessary. These functions exist to make working with keys consistent across Lambda functions. If you want to prepend a data type to key values as mentioned in the _Database_ section you can do so here.
 

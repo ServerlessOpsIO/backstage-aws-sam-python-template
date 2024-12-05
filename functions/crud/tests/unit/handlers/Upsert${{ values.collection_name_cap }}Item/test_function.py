@@ -238,8 +238,6 @@ def test__upsert_item_fails_when_item_does_not_exist(
     '''Test upsert item'''
     item_keys = ${{ values.collection_name_cap }}ItemKeys(**{'pk': '1234', 'sk': '1234'})
     item_data = mock_data
-    mock_fn._upsert_item(item_keys, item_data)
-
     with pytest.raises(
         mock_ddb_table_client.meta.client.exceptions.ConditionalCheckFailedException
     ):

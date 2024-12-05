@@ -240,7 +240,7 @@ components:
         - healthy
   parameters:
     id:
-      name: namespace
+      name: id
       in: path
       required: true
       description: Item ID
