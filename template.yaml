@@ -244,3 +244,32 @@ spec:
       input:
         repoContentsUrl: ${{ steps.publish.output.repoContentsUrl }}
         catalogInfoPath: "/catalog-info.yaml"
+
+
+---
+apiVersion: scaffolder.backstage.io/v1beta3
+kind: Template
+metadata:
+  name: aws-sam-python-event-handler
+  title: AWS Serverless Event Handler (Python)
+  description: |
+    Create a Python AWS serverless event handler.
+
+    This template provides the following for the newly created Component
+
+    * Lambda function
+      * With starter code
+      * With starter tests
+      * With starter mock data and schemas
+    * A DynamoDB table
+    * GitHub Actions build and deploy workflows
+
+  tags:
+    - aws
+    - serverless
+    - python
+    - event-handler
+
+spec:
+  owner: developers
+  type: component
