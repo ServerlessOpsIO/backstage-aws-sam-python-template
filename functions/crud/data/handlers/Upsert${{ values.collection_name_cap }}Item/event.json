@@ -13,7 +13,7 @@
       ]
     },
     "pathParameters": {
-      "id": "b55d2458-d0ac-11ec-a6cd-52b1e8d35459"
+      "id": "1234"
     },
     "stageVariables": {
       "baz": "qux"

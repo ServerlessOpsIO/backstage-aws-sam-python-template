@@ -31,6 +31,12 @@ class ResponseBody:
     '''Successful API Response body'''
     request_id: str
 
+@dataclass
+class ErrorResponseBody():
+    '''API error response body'''
+    error: str
+    message: str
+
 
 def _upsert_item(item_keys: ${{ values.collection_name_cap }}ItemKeys, item_data: ${{ values.collection_name_cap }}Data) -> None:
     '''Upsert a ${{ values.collection_name_cap }} in DDB'''
@@ -64,15 +70,22 @@ def handler(event: APIGatewayProxyEvent, context: LambdaContext) -> Output:
     item_data = ${{ values.collection_name_cap }}Data(
         **json.loads(body),
     )
-    # Ensure the item id is the same as the path parameter and the update won't change it.
-    item_data.id = _id
-    _upsert_item(item_keys, item_data)
 
-    response_body = ResponseBody(
-        **{
-            "request_id": context.aws_request_id
-        }
-    )
+    if item_data.id == _id:
+        _upsert_item(item_keys, item_data)
+
+        response_body = ResponseBody(
+            **{
+                "request_id": context.aws_request_id
+            }
+        )
+    else:
+        response_body = ErrorResponseBody(
+            **{
+                "error": "BadRequest",
+                "message": "Request id does not match payload id"
+            }
+        )
 
     output = Output(statusCode=201, body=json.dumps(asdict(response_body)))
 
