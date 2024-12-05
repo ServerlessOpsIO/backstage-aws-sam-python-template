@@ -161,8 +161,8 @@ def mock_fn(
         'src.handlers.Create${{ values.collection_name_cap }}Item.function.create_keys',
         return_value=${{ values.collection_name_cap }}ItemKeys(
             **{
-                'pk': '1234',
-                'sk': '1234'
+                'pk': '${{ values.collection_name_cap }}#1234',
+                'sk': '${{ values.collection_name_cap }}#1234'
             }
         )
     )
@@ -215,13 +215,13 @@ def test__create_item(
     mock_ddb_table_client: Table,
 ):
     '''Test create item'''
-    item_keys = ${{ values.collection_name_cap }}ItemKeys(**{'pk': '1234', 'sk': '1234'})
+    item_keys = ${{ values.collection_name_cap }}ItemKeys(**{'pk': '${{ values.collection_name_cap }}#1234', 'sk': '${{ values.collection_name_cap }}#1234'})
     item_data = mock_data
-    mock_fn._create_item(item_keys, item_data)
+    mock_fn._create_item(item_data)
 
     # Check item was created
-    item = mock_ddb_table_client.get_item(Key=asdict(item_keys))
-    assert item.get('Item') == { **asdict(item_keys), **asdict(item_data) }
+    r = mock_ddb_table_client.get_item(Key=asdict(item_keys))
+    assert r.get('Item') == { **asdict(item_keys), **asdict(item_data) }
 
 
 def test__create_item_fails_if_item_exists(
@@ -233,15 +233,15 @@ def test__create_item_fails_if_item_exists(
     # Create item to fail
     mock_ddb_table_client.put_item(
         Item={
-            'pk': '1234',
-            'sk': '1234',
+            'pk': '${{ values.collection_name_cap }}#1234',
+            'sk': '${{ values.collection_name_cap }}#1234',
         }
     )
 
-    item_keys = ${{ values.collection_name_cap }}ItemKeys(**{'pk': '1234', 'sk': '1234'})
+    item_keys = ${{ values.collection_name_cap }}ItemKeys(**{'pk': '${{ values.collection_name_cap }}#1234', 'sk': '${{ values.collection_name_cap }}#1234'})
     item_data = mock_data
 
     with pytest.raises(
         mock_ddb_table_client.meta.client.exceptions.ConditionalCheckFailedException
     ):
-        mock_fn._create_item(item_keys, item_data)
+        mock_fn._create_item(item_data)

@@ -16,7 +16,7 @@ from mypy_boto3_dynamodb.service_resource import DynamoDBServiceResource, Table
 from aws_lambda_powertools.utilities.data_classes import APIGatewayProxyEvent
 from aws_lambda_powertools.utilities.typing import LambdaContext
 
-from common.model.${{ values.collection_name }} import ${{ values.collection_name_cap }}Data, ${{ values.collection_name_cap }}ItemKeys
+from common.model.${{ values.collection_name }} import ${{ values.collection_name_cap }}Data, ${{ values.collection_name_cap }}ItemKeys, get_keys_from_id, get_id_from_keys
 from common.test.aws import create_lambda_function_context
 
 from src.handlers.Get${{ values.collection_name_cap }}Item.function import Output, ResponseBody, ErrorResponseBody
@@ -191,11 +191,12 @@ def test_handler(
 ):
     '''Test calling handler'''
     # Create item to get
-    pk = sk = _id = mock_event.path_parameters.get('id')
+    keys = get_keys_from_id(mock_event.path_parameters.get('id'))
+    _id = get_id_from_keys(keys)
     mock_ddb_table_client.put_item(
         Item={
-            'pk': pk,
-            'sk': sk,
+            'pk': keys.pk,
+            'sk': keys.sk,
             'id': _id,
         }
     )

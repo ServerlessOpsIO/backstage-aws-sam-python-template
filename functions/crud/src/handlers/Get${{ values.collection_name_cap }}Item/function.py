@@ -12,7 +12,7 @@ from mypy_boto3_dynamodb import DynamoDBServiceResource
 from mypy_boto3_dynamodb.service_resource import Table
 from mypy_boto3_dynamodb.type_defs import GetItemInputTableGetItemTypeDef
 
-from common.model.${{ values.collection_name }} import ${{ values.collection_name_cap }}Data, ${{ values.collection_name_cap }}Item, ${{ values.collection_name_cap }}ItemKeys, get_keys
+from common.model.${{ values.collection_name }} import ${{ values.collection_name_cap }}Data, ${{ values.collection_name_cap }}Item, ${{ values.collection_name_cap }}ItemKeys, get_keys_from_id
 from common.util.dataclasses import lambda_dataclass_response
 
 LOGGER = Logger(utc=True)
@@ -27,7 +27,7 @@ class Output:
     body: str
 
 @dataclass
-class ResponseBody(ThingData):
+class ResponseBody(${{ values.collection_name_cap }}Data):
     '''API Response body'''
 
 @dataclass
@@ -61,7 +61,7 @@ def handler(event: APIGatewayProxyEvent, context: LambdaContext) -> Output:
     '''Function entry'''
     LOGGER.info('Event', extra={"message_object": event.raw_event})
 
-    item_keys = get_keys(event.path_parameters.get('id', ''))
+    item_keys = get_keys_from_id(event.path_parameters.get('id', ''))
     data = _get_item(item_keys)
 
     if data is None:

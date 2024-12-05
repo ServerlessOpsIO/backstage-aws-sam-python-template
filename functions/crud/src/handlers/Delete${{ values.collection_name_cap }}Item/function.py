@@ -12,7 +12,7 @@ from mypy_boto3_dynamodb import DynamoDBServiceResource
 from mypy_boto3_dynamodb.service_resource import Table
 from mypy_boto3_dynamodb.type_defs import DeleteItemInputTableDeleteItemTypeDef
 
-from common.model.${{ values.collection_name }} import ${{ values.collection_name_cap }}ItemKeys, get_keys
+from common.model.${{ values.collection_name }} import ${{ values.collection_name_cap }}ItemKeys, get_keys_from_id
 from common.util.dataclasses import lambda_dataclass_response
 
 LOGGER = Logger(utc=True)
@@ -53,7 +53,7 @@ def handler(event: APIGatewayProxyEvent, context: LambdaContext) -> Output:
     '''Function entry'''
     LOGGER.info('Event', extra={"message_object": event.raw_event})
 
-    item_keys = get_keys(event.path_parameters.get('id', ''))
+    item_keys = get_keys_from_id(event.path_parameters.get('id', ''))
     _delete_item(item_keys)
 
     response_body = ResponseBody(

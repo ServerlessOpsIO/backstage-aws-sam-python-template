@@ -12,7 +12,7 @@ from mypy_boto3_dynamodb import DynamoDBServiceResource
 from mypy_boto3_dynamodb.service_resource import Table
 from mypy_boto3_dynamodb.type_defs import PutItemInputTablePutItemTypeDef
 
-from common.model.${{ values.collection_name }} import ${{ values.collection_name_cap }}Data, ${{ values.collection_name_cap }}ItemKeys, ${{ values.collection_name_cap }}Item, create_keys
+from common.model.${{ values.collection_name }} import ${{ values.collection_name_cap }}Data, ${{ values.collection_name_cap }}ItemKeys, ${{ values.collection_name_cap }}Item, create_keys, get_id_from_keys
 from common.util.dataclasses import lambda_dataclass_response
 
 LOGGER = Logger(utc=True)
@@ -32,8 +32,11 @@ class ResponseBody:
     id: str
 
 
-def _create_item(item_keys: ${{ values.collection_name_cap }}ItemKeys, item_data: ${{ values.collection_name_cap }}Data) -> None:
+def _create_item(item_data: ${{ values.collection_name_cap }}Data) -> str:
     '''Create a ${{ values.collection_name_cap }} in DDB'''
+    item_keys = create_keys()
+    item_data.id = get_id_from_keys(item_keys)
+
     item = ${{ values.collection_name_cap }}Item(
         **{
             **asdict(item_keys),
@@ -48,7 +51,7 @@ def _create_item(item_keys: ${{ values.collection_name_cap }}ItemKeys, item_data
 
     DDB_TABLE.put_item(**ddb_put_item_args)
 
-    return
+    return item_data.id
 
 
 @LOGGER.inject_lambda_context
@@ -59,14 +62,12 @@ def handler(event: APIGatewayProxyEvent, context: LambdaContext) -> Output:
     LOGGER.debug('Event', extra={"message_object": event.raw_event})
 
     body = event.body or '{}'
-    item_keys = create_keys()
     item_data = ${{ values.collection_name_cap }}Data(**json.loads(body))
-    item_data.id = item_keys.pk
-    _create_item(item_keys, item_data)
+    _id = _create_item(item_data)
 
     response_body = ResponseBody(
         **{
-            "id": item_data.id
+            "id": _id
         }
     )
 

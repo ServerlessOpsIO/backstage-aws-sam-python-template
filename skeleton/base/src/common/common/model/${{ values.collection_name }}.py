@@ -2,6 +2,8 @@ from dataclasses import dataclass
 from typing import Optional
 from uuid import uuid4 as uuid
 
+COLLECTION_NAME = '${{ values.collection_name }}'
+
 @dataclass
 class Base${{ values.collection_name_cap }}Data:
     '''Base attributes of ${{ values.collection_name_cap }} type'''
@@ -30,11 +32,16 @@ class ${{ values.collection_name_cap }}Item(${{ values.collection_name_cap }}Dat
     def get_data(self):
         return { k:v for (k, v) in self.__dict__.items() if k not in ['sk', 'pk'] }
 
-def create_keys(_id: Optional[str] = None) -> ${{ values.collection_name_cap }}ItemKeys:
+def create_keys() -> ${{ values.collection_name_cap }}ItemKeys:
     '''Create keys for DDB'''
-    key = _id or str(uuid())
+    key = '{}#{}'.format(COLLECTION_NAME, str(uuid()))
     return ${{ values.collection_name_cap }}ItemKeys(**{'pk': key, 'sk': key})
 
-def get_keys(_id: str) -> ${{ values.collection_name_cap }}ItemKeys:
+def get_keys_from_id_from_id(_id: str) -> ${{ values.collection_name_cap }}ItemKeys:
     '''Get keys for DDB'''
-    return ${{ values.collection_name_cap }}ItemKeys(**{'pk': _id, 'sk': _id})
+    key = '{}#{}'.format(COLLECTION_NAME, _id)
+    return ${{ values.collection_name_cap }}ItemKeys(**{'pk': key, 'sk': key})
+
+def get_id_from_keys(keys: ${{ values.collection_name_cap }}ItemKeys) -> str:
+    '''Get id from keys'''
+    return keys.pk.split('#')[1]

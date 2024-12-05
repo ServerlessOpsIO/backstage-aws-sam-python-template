@@ -12,7 +12,7 @@ from mypy_boto3_dynamodb import DynamoDBServiceResource
 from mypy_boto3_dynamodb.service_resource import Table
 from mypy_boto3_dynamodb.type_defs import PutItemInputTablePutItemTypeDef
 
-from common.model.${{ values.collection_name }} import ${{ values.collection_name_cap }}Data, ${{ values.collection_name_cap }}ItemKeys, ${{ values.collection_name_cap }}Item, get_keys
+from common.model.${{ values.collection_name }} import ${{ values.collection_name_cap }}Data, ${{ values.collection_name_cap }}ItemKeys, ${{ values.collection_name_cap }}Item, get_keys_from_id
 from common.util.dataclasses import lambda_dataclass_response
 
 LOGGER = Logger(utc=True)
@@ -60,8 +60,8 @@ def handler(event: APIGatewayProxyEvent, context: LambdaContext) -> Output:
 
     body = event.body or '{}'
     _id = event.path_parameters.get('id', '')
-    item_keys = get_keys(_id)
-    item_data = ThingData(
+    item_keys = get_keys_from_id(_id)
+    item_data = ${{ values.collection_name_cap }}Data(
         **json.loads(body),
     )
     # Ensure the item id is the same as the path parameter and the update won't change it.

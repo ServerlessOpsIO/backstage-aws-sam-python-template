@@ -16,7 +16,7 @@ from mypy_boto3_dynamodb.service_resource import DynamoDBServiceResource, Table
 from aws_lambda_powertools.utilities.data_classes import APIGatewayProxyEvent
 from aws_lambda_powertools.utilities.typing import LambdaContext
 
-from common.model.${{ values.collection_name }} import ${{ values.collection_name_cap }}ItemKeys
+from common.model.${{ values.collection_name }} import ${{ values.collection_name_cap }}ItemKeys, get_keys_from_id
 from common.test.aws import create_lambda_function_context
 
 from src.handlers.Delete${{ values.collection_name_cap }}Item.function import Output, ResponseBody
@@ -172,11 +172,11 @@ def test_handler(
 ):
     '''Test calling handler'''
     # Create item to delete
-    pk = sk = mock_event.path_parameters.get('id')
+    keys = get_keys_from_id(mock_event.path_parameters.get('id'))
     mock_ddb_table_client.put_item(
         Item={
-            'pk': pk,
-            'sk': sk,
+            'pk': keys.pk,
+            'sk': keys.sk,
             'data': 'data'
         }
     )
