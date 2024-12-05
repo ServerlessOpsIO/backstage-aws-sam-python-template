@@ -1,5 +1,5 @@
 {
-    "pk": "b55d2458-d0ac-11ec-a6cd-52b1e8d35459",
-    "sk": "b55d2458-d0ac-11ec-a6cd-52b1e8d35459",
+    "pk": "${{ values.collection_name }}#b55d2458-d0ac-11ec-a6cd-52b1e8d35459",
+    "sk": "${{ values.collection_name }}#b55d2458-d0ac-11ec-a6cd-52b1e8d35459",
     "id": "b55d2458-d0ac-11ec-a6cd-52b1e8d35459"
 }

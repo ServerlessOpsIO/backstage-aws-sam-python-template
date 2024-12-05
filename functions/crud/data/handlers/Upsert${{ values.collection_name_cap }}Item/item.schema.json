@@ -1,3 +1,0 @@
-{
-    "$ref": "file:./data/common/${{ values.collection_name }}-item.schema.json"
-}
