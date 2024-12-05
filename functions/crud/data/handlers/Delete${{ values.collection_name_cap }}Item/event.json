@@ -1,7 +1,7 @@
 {
     "body": "{ insert data.json as string here }",
-    "resource": "/v1/${{ values.collection_name }}/{id}",
-    "path": "/v1/${{ values.collection_name }}",
+    "resource": "${{ values.url_path_prefix }}/${{ values.collection_name }}/{id}",
+    "path": "${{ values.url_path_prefix }}/${{ values.collection_name }}",
     "httpMethod": "DELETE",
     "isBase64Encoded": false,
     "queryStringParameters": {

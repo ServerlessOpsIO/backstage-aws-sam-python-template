@@ -1,7 +1,7 @@
 {
     "body": "",
-    "resource": "/v1/${{ values.collection_name }}/{id}",
-    "path": "/v1/${{ values.collection_name }}",
+    "resource": "${{ values.url_path_prefix }}/${{ values.collection_name }}/{id}",
+    "path": "${{ values.url_path_prefix }}/${{ values.collection_name }}",
     "httpMethod": "GET",
     "isBase64Encoded": false,
     "queryStringParameters": {
