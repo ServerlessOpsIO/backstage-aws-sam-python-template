@@ -14,6 +14,7 @@ spec:
   providesApis:
     - resource:${{ values.component_name }}
 
+{% if values.is_crud %}
 ---
 apiVersion: backstage.io/v1alpha1
 kind: API
@@ -28,3 +29,4 @@ spec:
   owner: group:${{ values.owner_name }}
   definition:
     $text: https://github.com/${{ values.github_org }}/${{ values.component_name }}/blob/main/openapi.yaml
+{% endif %}

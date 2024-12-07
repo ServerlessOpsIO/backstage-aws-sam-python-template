@@ -189,9 +189,6 @@ spec:
           hostname: ${{ parameters.hostname }}
           collection_name: ${{ parameters.collection_name }}
           collection_name_cap: ${{ parameters.collection_name | capitalize }}
-          github_org: ${{ parameters.github_org }}
-          lifecycle: ${{ parameters.lifecycle }}
-          python_version: ${{ parameters.python_version }}
           url_path_prefix: ${{ parameters.url_path_prefix }}
 
     - id: create-functions
