@@ -284,13 +284,11 @@ spec:
             - sns
             - sqs
             - eventbridge
-            - dynamodb
           enumNames:
             - S3
             - SNS
             - SQS
             - EventBridge
-            - DynamoDB
         create_destination:
           title: Create Destination
           type: boolean
