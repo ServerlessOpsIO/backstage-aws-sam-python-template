@@ -215,10 +215,12 @@ spec:
           title: Function Name
           type: string
           description: Name of the function
+          'ui:placeholder': ThingProcessor
         function_description:
           title: Function Description
           type: string
           description: Short function description
+          'ui:placeholder': Process a thing
         python_version:
           title: Python Version
           type: string
