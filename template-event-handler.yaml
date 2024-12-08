@@ -118,15 +118,25 @@ spec:
           title: Event Source Type
           type: string
           description: Type of event source
+          # enum and enumNames must be kept in sync
           enum:
+            - config
+            - cloudwatch_alarm
+            - cloudwatch_log
+            - eventbridge
             - s3
             - sns
             - sqs
-            - eventbridge
-            - cloudwatch_alarm
-            - cloudwatch_log
-            - config
             #- bedrock
+          enumNames:
+            - AWS Config
+            - CloudWatch Alarm
+            - CloudWatch Log
+            - EventBridge
+            - S3
+            - SNS
+            - SQS
+            #- Bedrock
         create_event_source:
           title: Create Event Source
           type: boolean
@@ -202,12 +212,19 @@ spec:
           title: Destination Type
           type: string
           description: Type of destination
+          # enum and enumNames must be kept in sync
           enum:
             - s3
             - sns
             - sqs
             - eventbridge
             - dynamodb
+          enumNames:
+            - S3
+            - SNS
+            - SQS
+            - EventBridge
+            - DynamoDB
         create_destination:
           title: Create Destination
           type: boolean
