@@ -12,9 +12,11 @@ from pytest_mock import MockerFixture
 
 import boto3
 from moto import mock_aws
-from mypy_boto3_dynamodb.service_resource import DynamoDBServiceResource, Table
 from aws_lambda_powertools.utilities.data_classes import APIGatewayProxyEvent
 from aws_lambda_powertools.utilities.typing import LambdaContext
+from typing import TYPE_CHECKING
+if TYPE_CHECKING:
+    from mypy_boto3_dynamodb.service_resource import DynamoDBServiceResource, Table
 
 from common.model.${{ values.collection_name }} import ${{ values.collection_name_cap }}Data, ${{ values.collection_name_cap }}ItemKeys, get_keys_from_id
 from common.test.aws import create_lambda_function_context

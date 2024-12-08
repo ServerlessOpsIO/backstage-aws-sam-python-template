@@ -9,14 +9,14 @@ python_version = "${{ values.python_version }}"
 [packages]
 common = {editable = true, path = "src/common"}
 aws-lambda-powertools = "*"
-{% if values.is_crud -%}
-boto3-stubs = { extras = ["dynamodb" ], version = "*"}
-{% else -%}
-#boto3-stubs = { extras = ["all" ], version = "*"}
-{%- endif %}
 
 [dev-packages]
 cfn-lint = "*"
+{% if values.is_crud -%}
+boto3-stubs = { extras = [ "dynamodb" ], version = "*"}
+{% else -%}
+#boto3-stubs = { extras = [ "all" ], version = "*"}
+{%- endif %}
 flake8 = "*"
 genson = "*"
 jsonschema = "*"
