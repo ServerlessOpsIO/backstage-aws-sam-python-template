@@ -116,18 +116,12 @@ spec:
           description: Type of event source
           # enum and enumNames must be kept in sync
           enum:
-            - config
-            - cloudwatch_alarm
-            - cloudwatch_log
             - eventbridge
             - s3
             - sns
             - sqs
             #- bedrock
           enumNames:
-            - AWS Config
-            - CloudWatch Alarm
-            - CloudWatch Log
             - EventBridge
             - S3
             - SNS
