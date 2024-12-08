@@ -1,9 +1,9 @@
-{% if values.event_data_type_schema -%}
-${{ values.event_data_type_schema }}
+{% if values.output_data_type_schema -%}
+${{ values.output_data_type_schema }}
 {% else -%}
 {
     "$schema": "http://json-schema.org/draft-07/schema#",
-    "title": "Event",
+    "title": "${{ values.function_name}} Output",
     "type": "object",
     "properties": {},
     "additionalProperties": true

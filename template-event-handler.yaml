@@ -106,14 +106,10 @@ spec:
                 relations.partOf: "{{ parameters.system }}"
                 spec.type: cloud-account
             defaultKind: System
+
     - title: Event Source
-      required:
-        - event_data_type_name
+      required: []
       properties:
-        event_data_type_name:
-          title: Event Data Type Name
-          type: string
-          description: Name of the event data type
         event_source_type:
           title: Event Source Type
           type: string
@@ -170,6 +166,43 @@ spec:
                   type: string
                   title: Event Source ARN
                   description: ARN of the event source
+
+    - title: Event Data
+      required:
+        - event_data_type_name
+      properties:
+        event_data_type_name:
+          title: Event Data Type Name
+          type: string
+          description: Name of the event data type
+          'ui:placeholder': thing
+        event_data_type_example:
+          type: string
+          title: Data Example
+          description: Example data
+          'ui:widget': 'textarea'
+          'ui:placeholder': |
+            {
+              "key": "value"
+            }
+          'ui:options':
+            rows: 10
+        event_data_type_schema:
+          type: string
+          title: Data JSON schema
+          description: JSON schema of data
+          'ui:widget': 'textarea'
+          'ui:placeholder': |
+            {
+                "$schema": "http://json-schema.org/draft-07/schema#",
+                "title": "Event",
+                "type": "object",
+                "properties": {},
+                "additionalProperties": true
+            }
+          'ui:options':
+            rows: 10
+
     - title: Function Configuration
       required:
         - function_name
@@ -204,7 +237,38 @@ spec:
           type: number
           description: Memory size for the function
           default: 128
-    - title: Event Destination
+
+    - title: Output Data
+      required: []
+      properties:
+        output_data_type_example:
+          type: string
+          title: Data Example
+          description: Example data
+          'ui:widget': 'textarea'
+          'ui:placeholder': |
+            {
+              "key": "value"
+            }
+          'ui:options':
+            rows: 10
+        output_data_type_schema:
+          type: string
+          title: Data JSON schema
+          description: JSON schema of data
+          'ui:widget': 'textarea'
+          'ui:placeholder': |
+            {
+                "$schema": "http://json-schema.org/draft-07/schema#",
+                "title": "Output",
+                "type": "object",
+                "properties": {},
+                "additionalProperties": true
+            }
+          'ui:options':
+            rows: 10
+
+    - title: Data Destination
       required:
         - create_destination
       properties:
@@ -344,8 +408,12 @@ spec:
           function_description: ${{ parameters.function_description }}
           event_data_type_name: ${{ parameters.event_data_type_name }}
           event_data_type_name_cap: ${{ parameters.event_data_type_name | capitalize }}
+          event_data_type_example: ${{ parameters.event_data_type_example }}
+          event_data_type_schema: ${{ parameters.event_data_type_schema }}
           event_source_type: ${{ parameters.event_source_type }}
           create_event_source: ${{ parameters.create_event_source }}
+          output_data_type_example: ${{ parameters.output_data_type_example }}
+          output_data_type_schema: ${{ parameters.output_data_type_schema }}
           destination_type: ${{ parameters.destination_type }}
           create_destination: ${{ parameters.create_destination }}
           has_s3: ${{ true if parameters.event_source_type == 's3' or parameters.destination_type == 's3' else false }}

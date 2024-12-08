@@ -1,0 +1,1 @@
+${{ values.output_data_type_example if values.output_data_type_example else "{}" }}

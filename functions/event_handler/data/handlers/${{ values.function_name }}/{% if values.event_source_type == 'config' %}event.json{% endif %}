@@ -1,0 +1,12 @@
+{
+    "invokingEvent": "{ data.json as string }",
+    "ruleParameters": "{\"<exampleKey>\":\"<exampleValue>\"}",
+    "resultToken": "myResultToken",
+    "eventLeftScope": false,
+    "executionRoleArn": "arn:aws:iam::123456789012:role/config-role",
+    "configRuleArn": "arn:aws:config:us-east-1:123456789012:config-rule/config-rule-0123456",
+    "configRuleName": "change-triggered-config-rule",
+    "configRuleId": "config-rule-0123456",
+    "accountId": "123456789012",
+    "version": "1.0"
+}
