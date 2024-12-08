@@ -386,7 +386,9 @@ spec:
           event_data_type_name: ${{ parameters.event_data_type_name }}
           event_data_type_name_cap: ${{ parameters.event_data_type_name | capitalize }}
           event_source_type: ${{ parameters.event_source_type }}
+          create_event_source: ${{ parameters.create_event_source }}
           destination_type: ${{ parameters.destination_type }}
+          create_destination: ${{ parameters.create_destination }}
           has_s3: ${{ true if parameters.event_source_type == 's3' or parameters.destination_type == 's3' else false }}
           has_sns: ${{ true if parameters.event_source_type == 'sns' or parameters.destination_type == 'sns' else false }}
           has_sqs: ${{ true if parameters.event_source_type == 'sqs' or parameters.destination_type == 'sqs' else false }}
@@ -413,11 +415,9 @@ spec:
           event_data_type_example: ${{ parameters.event_data_type_example }}
           event_data_type_schema: ${{ parameters.event_data_type_schema }}
           event_source_type: ${{ parameters.event_source_type }}
-          create_event_source: ${{ parameters.create_event_source }}
           output_data_type_example: ${{ parameters.output_data_type_example }}
           output_data_type_schema: ${{ parameters.output_data_type_schema }}
           destination_type: ${{ parameters.destination_type }}
-          create_destination: ${{ parameters.create_destination }}
           has_s3: ${{ true if parameters.event_source_type == 's3' or parameters.destination_type == 's3' else false }}
           has_sns: ${{ true if parameters.event_source_type == 'sns' or parameters.destination_type == 'sns' else false }}
           has_sqs: ${{ true if parameters.event_source_type == 'sqs' or parameters.destination_type == 'sqs' else false }}
