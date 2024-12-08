@@ -18,6 +18,8 @@
 {% set event_data_source_class = 'CloudWatchLogsEvent' -%}
 {% elif values.event_source_type == 'config' -%}
 {% set event_data_source_class = 'AWSConfigRuleEvent' -%}
+{% else %}
+{% set event_data_source_class = 'Event' -%}
 {%- endif %}
 from dataclasses import asdict, dataclass
 {% if values.event_source_type == 'ddb' -%}
@@ -50,6 +52,11 @@ DDB_TABLE = DDB.Table(os.environ.get('DDB_TABLE_NAME', ''))
 S3_CLIENT: S3Client = boto3.client('s3')
 {% endif %}
 
+{% if not values.event_source_type -%}
+@dataclass
+class Event:
+    '''Function event'''
+{% endif %}
 @dataclass
 class Output:
     '''Function output'''
