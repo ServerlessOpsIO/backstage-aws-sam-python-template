@@ -14,12 +14,20 @@
 {%- endif %}
 {%- if values.destination_type == 's3' -%}
 {% set destination_id = 'DestinationS3Bucket' -%}
+{% set destination_type = 'S3' -%}
+{% set destination_arn_attr = 'Arn' -%}
 {% elif values.destination_type == 'sns' -%}
 {% set destination_id = 'DestinationSnsTopic' -%}
+{% set destination_type = 'SNS' -%}
+{% set destination_arn_attr = 'TopicArn' -%}
 {% elif values.destination_type == 'sqs' -%}
 {% set destination_id = 'DestinationSqsQueue' -%}
+{% set destination_type = 'SQS' -%}
+{% set destination_arn_attr = 'Arn' -%}
 {% elif values.destination_type == 'eventbridge' -%}
 {% set destination_id = 'DestinationEventBus' -%}
+{% set destination_type = 'EventBridge' -%}
+{% set destination_arn_attr = 'Arn' -%}
 {%- endif %}
 AWSTemplateFormatVersion: '2010-09-09'
 Transform: AWS::Serverless-2016-10-31
@@ -92,11 +100,12 @@ Resources:
       {%- endif %}
       {% if values.destination_type == 'sns' or values.destination_type == 'sqs' or values.destination_type == 'eventbridge' -%}
       EventInvokeConfig:
-        MaximumEventAgeInSeconds: 15  # Adjust as needed
+        MaximumEventAgeInSeconds: 60  # Adjust as needed
         MaximumRetryAttempts: 2       # Adjust as needed
         DestinationConfig:
           OnSuccess:
-            Destination: !GetAtt ${{ destination_id }}.Arn
+            Type: {{ values.destination_type }}
+            Destination: !GetAtt ${{ destination_id }}${{ ".${{ destination_arn_attr }}" if not values.destination_arn }}
       {% endif %}
 
   {% if values.event_source_type and values.create_event_source %}

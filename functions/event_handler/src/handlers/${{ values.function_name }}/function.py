@@ -2,16 +2,16 @@
 
 {%- if values.event_source_type == 's3' -%}
 {% set event_data_source_class = 'S3Event' -%}
-{% set data_type_class = '${{ values.event_data_type_name_cap }}Data' -%}
+{% set data_type_class = "${{ values.event_data_type_name_cap }}Data" -%}
 {% elif values.event_source_type == 'sns' -%}
 {% set event_data_source_class = 'SNSEvent' -%}
-{% set data_type_class = '${{ values.event_data_type_name_cap }}Data' -%}
+{% set data_type_class = "${{ values.event_data_type_name_cap }}Data" -%}
 {% elif values.event_source_type == 'sqs' -%}
 {% set event_data_source_class = 'SQSEvent' -%}
-{% set data_type_class = '${{ values.event_data_type_name_cap }}Data' -%}
+{% set data_type_class = "${{ values.event_data_type_name_cap }}Data" -%}
 {% elif values.event_source_type == 'eventbridge' -%}
 {% set event_data_source_class = 'EventBridgeEvent' -%}
-{% set data_type_class = '${{ values.event_data_type_name_cap }}Data' -%}
+{% set data_type_class = "${{ values.event_data_type_name_cap }}Data" -%}
 {% elif values.event_source_type == 'cloudwatch_alarm' -%}
 {% set event_data_source_class = 'CloudWatchAlarmEvent' -%}
 {% elif values.event_source_type == 'cloudwatch_log' -%}
@@ -63,7 +63,7 @@ class Output:
 
 {# Common client tasks -#}
 {% if values.event_source_type == 'ddb' -%}
-def _put_ddb_item(item_data: ${{ data_type_class }}) -> None:
+def _put_ddb_item(item_data: ${{ values.event_data_type_name_cap }}Data) -> None:
     '''Put item in DynamoDB'''
     pass
 {% elif values.event_source_type == 's3' %}
@@ -78,19 +78,19 @@ def _get_s3_object_contents(bucket: str, key: str) -> str:
     return obj['Body'].read().decode()
 {% endif %}
 
-def _main(data{% if data_type_class %}: ${{ data_type_class }}{% endif %}) -> None:
+def _main(data: ${{ values.event_data_type_name_cap }}Data) -> None:
     '''Main work of function'''
     pass
 
 
 @LOGGER.inject_lambda_context
 @lambda_dataclass_response
-{%- if event_data_source_class -%}
+{% if event_data_source_class -%}
 def handler(event, context: LambdaContext) -> Output:
 {%- else -%}
 @event_source(data_class=${{ event_data_source_class }})
 def handler(event: ${{ event_data_source_class }}, context: LambdaContext) -> Output:
-{%- endif %}
+{% endif -%}
     '''Event handler'''
     LOGGER.debug('Event', extra={"message_object": event})
 

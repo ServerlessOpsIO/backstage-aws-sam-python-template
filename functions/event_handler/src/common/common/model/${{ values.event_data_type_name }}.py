@@ -1,5 +1,5 @@
 from dataclasses import dataclass
-from uuid import uuid4 as uuid
+{% if values.has_ddb %}from uuid import uuid4 as uuid{% endif %}
 
 COLLECTION_NAME = '${{ values.event_data_type_name }}'
 

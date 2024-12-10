@@ -29,14 +29,13 @@ import pytest
 from pytest_mock import MockerFixture
 
 import boto3
-# NOTE: uncomment following line if function calls AWS services and see AWS Clients below
-#from moto import mock_aws
-{% if values.event_data_type_name -%}
+{% if mock_aws -%}#from moto import mock_aws{% endif -%}
+{% if values.event_source_type -%}
 from aws_lambda_powertools.utilities.data_classes import ${{ event_data_source_class }}
 {% endif -%}
 from aws_lambda_powertools.utilities.typing import LambdaContext
 
-from common.model.${{ values.event_data_type_name }} import ${{ values.event_data_type_name }}Data
+from common.model.${{ values.event_data_type_name }} import ${{ values.event_data_type_name_cap }}Data
 from common.test.aws import create_lambda_function_context
 
 from src.handlers.${{ values.function_name }}.function import Output${{ ', Event' if not values.event_source_type }}
@@ -67,10 +66,10 @@ def data_schema(data_schema=DATA_SCHEMA):
         return json.load(f)
 # Event
 @pytest.fixture()
-def mock_event(e=EVENT) -> ${{ values.event_data_source_class }}:
+def mock_event(e=EVENT) -> ${{ event_data_source_class }}:
     '''Return a function event'''
     with open(e) as f:
-        return ${{ values.event_data_type_name }}(json.load(f))
+        return ${{ event_data_source_class }}(**json.load(f))
 
 @pytest.fixture()
 def event_schema(schema=EVENT_SCHEMA):
@@ -128,7 +127,7 @@ def mock_context(function_name=FN_NAME):
 @pytest.fixture()
 def mock_fn(mocker: MockerFixture) -> Generator[ModuleType, None, None]:
     '''Return mocked function'''
-    import src.handlers.CreateThingItem.function as fn
+    import src.handlers.${{ values.function_name }}.function as fn
 
     # NOTE: use mocker to mock any top-level variables outside of the handler function.
     # eg.
@@ -155,7 +154,10 @@ def test_validate_expected_data(mock_expected_output, expected_output_schema):
 
 
 ### Code Tests
-def test__main(mock_data: ${{ values.event_data_type_name_cap }}Data):
+def test__main(
+    mock_fn: ModuleType,
+    mock_data: ${{ values.event_data_type_name_cap }}Data
+):
     '''Test _main function'''
     r = mock_fn._main(mock_data)
     assert r is None
