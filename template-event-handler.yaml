@@ -374,8 +374,10 @@ spec:
           event_data_type_name: ${{ parameters.event_data_type_name }}
           event_data_type_name_cap: ${{ parameters.event_data_type_name | capitalize }}
           event_source_type: ${{ parameters.event_source_type }}
+          event_source_arn: ${{ parameters.event_source_arn }}
           create_event_source: ${{ parameters.create_event_source }}
           destination_type: ${{ parameters.destination_type }}
+          destination_arn: ${{ parameters.destination_arn }}
           create_destination: ${{ parameters.create_destination }}
           has_s3: ${{ true if parameters.event_source_type == 's3' or parameters.destination_type == 's3' else false }}
           has_sns: ${{ true if parameters.event_source_type == 'sns' or parameters.destination_type == 'sns' else false }}
@@ -444,3 +446,17 @@ spec:
         topics:
           - "domain:${{ parameters.domain | parseEntityRef | pick('name') }}"
           - "system:${{ parameters.system | parseEntityRef | pick('name') }}"
+
+    - id: display-gh-repo-url
+      name: Github Repo URL
+      action: debug:log
+      input:
+        message: |
+          GitHub Repository Page: ${{ steps.publish.output.repoContentsUrl }}"
+          Git URL: ${{ steps.publish.output.remoteUrl }}"
+
+    - id: show-files
+      name: Files Created
+      action: debug:log
+      input:
+        listWorkspace: true

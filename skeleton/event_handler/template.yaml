@@ -1,3 +1,4 @@
+{#- This needs to be kept in sync with cfn-parameters.json -#}
 {%- if values.event_source_type == 's3' -%}
 {% set event_source_id = 'SourceS3Bucket' -%}
 {% set sam_event_type = 'S3' %}
@@ -41,6 +42,16 @@ Parameters:
   CodeBranch:
     Type: String
     Description: "Name of deployment branch"
+{% if values.event_source_arn %}
+  ${{ event_source_id }}:
+    Type: String
+    Description: 'ARN of ${{ sam_event_type }} event source'
+{% endif %}
+{% if values.destination_arn %}
+  ${{ destination_id }}:
+    Type: String
+    Description: 'ARN of ${{ values.destination_type | capitalize }} destination'
+{% endif %}
 
 Globals:
   Function:
