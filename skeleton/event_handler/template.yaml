@@ -1,3 +1,25 @@
+{%- if values.event_source_type == 's3' -%}
+{% set event_source_id = 'SourceS3Bucket' -%}
+{% set sam_event_type = 'S3' %}
+{% elif values.event_source_type == 'sns' -%}
+{% set event_source_id = 'SourceSnsTopic' -%}
+{% set sam_event_type = 'SNS' %}
+{% elif values.event_source_type == 'sqs' -%}
+{% set event_source_id = 'SourceSqsQueue' -%}
+{% set sam_event_type = 'SQS' %}
+{% elif values.event_source_type == 'eventbridge' -%}
+{% set event_source_id = 'SourceEventBus' -%}
+{% set sam_event_type = 'EventBridgeRule' %}
+{%- endif %}
+{%- if values.destination_type == 's3' -%}
+{% set destination_id = 'DestinationS3Bucket' -%}
+{% elif values.destination_type == 'sns' -%}
+{% set destination_id = 'DestinationSnsTopic' -%}
+{% elif values.destination_type == 'sqs' -%}
+{% set destination_id = 'DestinationSqsQueue' -%}
+{% elif values.destination_type == 'eventbridge' -%}
+{% set destination_id = 'DestinationEventBus' -%}
+{%- endif %}
 AWSTemplateFormatVersion: '2010-09-09'
 Transform: AWS::Serverless-2016-10-31
 Description: |
@@ -27,7 +49,6 @@ Globals:
     MemorySize: 128
     Environment:
       Variables:
-        DDB_TABLE_NAME: !Ref DdbTable
         POWERTOOLS_SERVICE_NAME: !Ref AWS::StackName
 
 
@@ -41,3 +62,65 @@ Resources:
       {% if values.function_description -%}
       Description: ${{ values.function_description }}
       {%- endif %}
+      {% if event_source_id %}
+      Events:
+        ${{ event_source_id }}:
+          Type: {{ values.event_source_type }}
+          Properties:
+            {% if values.event_source_type == 's3' -%}
+            Bucket: !Ref ${{ event_source_id }}
+            Events: s3:ObjectCreated:*    # Adjust as needed
+            {%- elif values.event_source_type == 'sns' -%}
+            Topic: !Ref ${{ event_source_id }}
+            {%- elif values.event_source_type == 'sqs' -%}
+            Queue: !Ref ${{ event_source_id }}
+            BatchSize: 1    # Adjust as needed
+            {%- elif values.event_source_type == 'eventbridge' -%}
+            EventBus: !Ref ${{ event_source_id }}
+            {%- endif %}
+      {%- endif %}
+      {% if values.destination_type == 'sns' or values.destination_type == 'sqs' or values.destination_type == 'eventbridge' -%}
+      EventInvokeConfig:
+        MaximumEventAgeInSeconds: 15  # Adjust as needed
+        MaximumRetryAttempts: 2       # Adjust as needed
+        DestinationConfig:
+          OnSuccess:
+            Destination: !GetAtt ${{ destination_id }}.Arn
+      {% endif %}
+
+  {% if values.event_source_type and values.create_event_source %}
+  {% if values.event_source_type == 's3' -%}
+  ${{ event_source_id }}:
+    Type: AWS::S3::Bucket
+  {% elif values.event_source_type == 'sns' -%}
+  ${{ event_source_id }}:
+    Type: AWS::SNS::Topic
+    Properties:
+      DisplayName: ${{ values.function_name }} Source
+  {% elif values.event_source_type == 'sqs' -%}
+  ${{ event_source_id }}:
+    Type: AWS::SQS::Queue
+  {% elif values.event_source_type == 'eventbridge' -%}
+  ${{ event_source_id }}:
+    Type: AWS::Events:EventBus
+  {% endif %}
+  {% endif %}
+
+  {% if values.destination_type and values.create_destination -%}
+  {% if values.destination_type == 's3' -%}
+  ${{ destination_id }}:
+    Type: AWS::S3::Bucket
+    Properties:
+  {% elif values.destination_type == 'sns' -%}
+  ${{ destination_id }}:
+    Type: AWS::SNS::Topic
+    Properties:
+      DisplayName: ${{ values.function_name }} Destination
+  {% elif values.destination_type == 'sqs' -%}
+  ${{ destination_id }}:
+    Type: AWS::SQS::Queue
+  {% elif values.destination_type == 'eventbridge' -%}
+  ${{ destination_id }}:
+    Type: AWS::Events:EventBus
+  {% endif %}
+  {% endif %}

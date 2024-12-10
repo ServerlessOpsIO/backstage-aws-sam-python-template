@@ -274,15 +274,15 @@ spec:
           description: Type of destination
           # enum and enumNames must be kept in sync
           enum:
+            - eventbridge
             - s3
             - sns
             - sqs
-            - eventbridge
           enumNames:
+            - EventBridge
             - S3
             - SNS
             - SQS
-            - EventBridge
         create_destination:
           title: Create Destination
           type: boolean
@@ -290,33 +290,29 @@ spec:
           default: true
           'ui:widget': 'radio'
       dependencies:
-        create_event_destination:
+        create_destination:
           oneOf:
             - properties:
-                create_event_destination:
+                create_destination:
                   const: true
             - properties:
-                create_event_destination:
+                create_destination:
                   const: false
-                use_existing_event_destination:
+                use_existing_destination:
                   type: boolean
                   title: Use existing Event Destination?
                   description: Whether or not to use an existing event data destination
                   default: true
                   'ui:widget': 'radio'
-                #event_destination_arn:
-                #  type: string
-                #  title: Event Destination ARN
-                #  description: ARN of the event data destination
-        use_existing_event_destination:
+        use_existing_destination:
           oneOf:
             - properties:
-                use_existing_event_destination:
+                use_existing_destination:
                   const: false
             - properties:
-                use_existing_event_destination:
+                use_existing_destination:
                   const: true
-                event_destination_arn:
+                destination_arn:
                   type: string
                   title: Event Destination ARN
                   description: ARN of the event data destination

@@ -1,6 +1,8 @@
 '''Test ${{ values.function_name}}'''
 {%- if values.event_source_type == 's3' -%}
 {% set event_data_source_class = 'S3Event' -%}
+{% set mock_aws = true -%}
+{% set mock_client_name = 'mock_s3_client' -%}
 {% elif values.event_source_type == 'sns' -%}
 {% set event_data_source_class = 'SNSEvent' -%}
 {% elif values.event_source_type == 'sqs' -%}
@@ -89,35 +91,33 @@ def expected_output_schema(output_schema=OUTPUT_SCHEMA):
     with open(output_schema) as f:
         return json.load(f)
 
+{% if mock_aws %}
 # AWS Clients
 #
-# NOTE: uncomment aws_credentials() and mocked_aws() if function calls AWS services. Then see
-#  mock_s3_client() as an example of mocking an AWS service. Be sure to pass your mocked AWS
-#  client to your tests.
-#
-# Mocking AWS services must also be done before importing the function.
-#
-#@pytest.fixture()
-#def aws_credentials() -> None:
-#    '''Mocked AWS Credentials for moto.'''
-#    os.environ["AWS_ACCESS_KEY_ID"] = "testing"
-#    os.environ["AWS_SECRET_ACCESS_KEY"] = "testing"
-#    os.environ["AWS_SECURITY_TOKEN"] = "testing"
-#    os.environ["AWS_SESSION_TOKEN"] = "testing"
-#    os.environ["AWS_DEFAULT_REGION"] = "us-east-1"
-#
-#@pytest.fixture()
-#def mocked_aws(aws_credentials):
-#    '''Mock all AWS interactions'''
-#    with mock_aws():
-#        yield
-#
-#@pytest.fixture()
-#def mock_s3_client(mocked_aws) -> Generator[S3Client, None, None]:
-#    '''Return a mocked S3 client'''
-#    s3_client = boto3.client('s3')
-#    s3_client.create_bucket(Bucket='MockBucket')
-#    yield s3_client
+# NOTE: Mocking AWS services must also be done before importing the function.
+@pytest.fixture()
+def aws_credentials() -> None:
+    '''Mocked AWS Credentials for moto.'''
+    os.environ["AWS_ACCESS_KEY_ID"] = "testing"
+    os.environ["AWS_SECRET_ACCESS_KEY"] = "testing"
+    os.environ["AWS_SECURITY_TOKEN"] = "testing"
+    os.environ["AWS_SESSION_TOKEN"] = "testing"
+    os.environ["AWS_DEFAULT_REGION"] = "us-east-1"
+
+@pytest.fixture()
+def mocked_aws(aws_credentials):
+    '''Mock all AWS interactions'''
+    with mock_aws():
+        yield
+{% if values.event_source_type == 's3' %}
+@pytest.fixture()
+def ${{ mock_client_name }}(mocked_aws) -> Generator[S3Client, None, None]:
+    '''Return a mocked S3 client'''
+    s3_client = boto3.client('s3')
+    s3_client.create_bucket(Bucket='MockBucket')
+    yield s3_client
+{% endif %}
+{% endif %}
 
 # Function
 @pytest.fixture()
@@ -167,6 +167,7 @@ def test_handler(
     mock_event: ${{ event_data_source_class }},
     mock_data: ${{ values.event_data_type_name_cap }}Data,
     mock_expected_output: Output,
+    ${{ mock_client_name if mock_client_name }}
 ):
     '''Test calling handler'''
     # Call the function
