@@ -2,10 +2,16 @@
 apiVersion: scaffolder.backstage.io/v1beta3
 kind: Template
 metadata:
-  name: aws-sam-python-event-handler
-  title: AWS Serverless Event Handler (Python)
+  name: aws-sam-python-message-event-handler
+  title: AWS Serverless Message Event Handler (Python)
   description: |
-    Create a Python AWS serverless event handler.
+    Create a Python AWS serverless message event handler.
+
+    Supports the following event sources:
+    * Amazon EventBridge
+    * Amazon S3
+    * Amazon SNS
+    * Amazon SQS
 
     This template provides the following for the newly created Component
 
@@ -19,6 +25,7 @@ metadata:
     - aws
     - serverless
     - python
+    - messaging
     - event-handler
 
 spec:
