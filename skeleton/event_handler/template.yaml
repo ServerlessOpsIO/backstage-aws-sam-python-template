@@ -88,7 +88,7 @@ Resources:
       {% if event_source_id %}
       Events:
         ${{ event_source_id }}:
-          Type: ${{ values.event_source_type }}
+          Type: ${{ sam_event_type }}
           Properties:
             {% if values.event_source_type == 's3' -%}
             Bucket: !Ref ${{ event_source_id }}
@@ -104,6 +104,9 @@ Resources:
       {%- endif %}
       {% if values.destination_type -%}
       Policies:
+        {% if values.event_source_type == 's3' -%}
+        - S3ReadPolicy:
+            BucketName: !Ref ${{ event_source_id }}
         {% if values.destination_type == 's3' -%}
         - S3PutObjectPolicy:
             BucketName: !Ref ${{ destination_id }}

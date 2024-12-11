@@ -423,6 +423,13 @@ spec:
           - "domain:${{ parameters.domain | parseEntityRef | pick('name') }}"
           - "system:${{ parameters.system | parseEntityRef | pick('name') }}"
 
+    - id: register
+      name: Register in Backstage
+      action: catalog:register
+      input:
+        repoContentsUrl: ${{ steps.publish.output.repoContentsUrl }}
+        catalogInfoPath: "/catalog-info.yaml"
+
     - id: show-files
       name: Files Created
       action: debug:log

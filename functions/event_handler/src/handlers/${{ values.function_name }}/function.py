@@ -1,6 +1,7 @@
 {% if values.function_description %}'''${{ values.function_description }}'''{% endif %}
 
 {%- if values.event_source_type == 's3' -%}
+{% set src_mypy_client_class = 'mypy_boto3_s3' -%}
 {% set event_data_source_class = 'S3Event' -%}
 {% set data_type_class = "${{ values.event_data_type_name_cap }}Data" -%}
 {% elif values.event_source_type == 'sns' -%}
@@ -25,7 +26,6 @@
 {%- if values.destination_type == 's3' -%}
 {% set mypy_module = 'mypy_boto3_s3' -%}
 {% set mypy_client_class = 'S3Client' -%}
-{% set mypy_type_defs = 'GetObjectOutputTypeDef' -%}
 
 {% elif values.destination_type == 'sns' -%}
 {% set mypy_module = 'mypy_boto3_sns' -%}
@@ -45,7 +45,7 @@ from dataclasses import dataclass
 {% if values.destination_type %}
 import boto3
 from ${{ mypy_module }} import ${{ mypy_client_class }}
-{%if mypy_type_defs %}from ${{ mypy_module }}.type_defs import ${{ mypy_type_defs }}{% endif %}
+{%if values.event_source_type == 's3' %}from mypy_boto3_s3.type_defs import $GetObjectOutputTypeDef{% endif %}
 {%- endif %}
 from aws_lambda_powertools.logging import Logger
 from aws_lambda_powertools.utilities.typing import LambdaContext
@@ -59,21 +59,24 @@ from aws_lambda_powertools.utilities.data_classes import (
 from common.model.${{ values.event_data_type_name }} import ${{ values.event_data_type_name_cap }}Data
 
 LOGGER = Logger(utc=True)
-
-{#- Initialize AWS clients -#}
-{% if values.destination_type == 's3' %}
+{# Initialize AWS clients #}
+{%- if values.event_source_type == 's3'%}
+S3_CLIENT: ${{ src_mypy_client_class }} = boto3.client('s3')
+S3_BUCKET_NAME = os.environ.get('S3_BUCKET_NAME', 'UNSET')
+{%- endif %}
+{% if values.destination_type == 's3' and not values.event_source_type == 's3' -%}
 S3_CLIENT: ${{ mypy_client_class }} = boto3.client('s3')
 S3_BUCKET_NAME = os.environ.get('S3_BUCKET_NAME', 'UNSET')
-{% elif values.destination_type == 'sns' %}
+{%- elif values.destination_type == 'sns' -%}
 SNS_CLIENT: ${{ mypy_client_class }} = boto3.client('sns')
 SNS_TOPIC_ARN = os.environ.get('SNS_TOPIC_ARN', 'UNSET')
-{% elif values.destination_type == 'sqs' %}
+{%- elif values.destination_type == 'sqs' -%}
 SQS_CLIENT: ${{ mypy_client_class }} = boto3.client('sqs')
 SQS_QUEUE_URL = os.environ.get('SQS_QUEUE_URL', 'UNSET')
-{% elif values.destination_type == 'eventbridge' %}
+{%- elif values.destination_type == 'eventbridge' -%}
 EVENTBRIDGE_CLIENT: ${{ mypy_client_class }} = boto3.client('events')
 EVENT_BUS_NAME = os.environ.get('EVENT_BUS_NAME', 'UNSET')
-{% endif -%}
+{%- endif %}
 
 {% if not values.event_source_type -%}
 @dataclass
@@ -82,11 +85,11 @@ class Event:
 {% endif %}
 
 {# Common client tasks #}
-{% if values.event_source_type == 'ddb' -%}
+{%- if values.event_source_type == 'ddb' -%}
 def _put_ddb_item(item_data: ${{ values.event_data_type_name_cap }}Data) -> None:
     '''Put item in DynamoDB'''
     pass
-{% elif values.event_source_type == 's3' -%}
+{%- elif values.event_source_type == 's3' -%}
 def _get_s3_object(bucket: str, key: str) -> GetObjectOutputTypeDef:
     '''Get object from S3'''
     return S3_CLIENT.get_object(Bucket=bucket, Key=key)
@@ -96,7 +99,7 @@ def _get_s3_object_contents(bucket: str, key: str) -> str:
     '''Get object from S3'''
     obj = S3_CLIENT.get_object(Bucket=bucket, Key=key)
     return obj['Body'].read().decode()
-{% endif -%}
+{% endif %}
 
 def _main(data: ${{ values.event_data_type_name_cap }}Data) -> None:
     '''Main work of function'''

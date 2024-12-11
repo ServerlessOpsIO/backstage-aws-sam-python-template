@@ -122,13 +122,14 @@ def mocked_aws(aws_credentials):
     with mock_aws():
         yield
 
-{% if values.event_source_type == 's3' or values.destination_type == 's3' %}
+{% if values.destination_type == 's3' %}
 @pytest.fixture()
 def ${{ mock_client_name }}(mocked_aws) -> Generator[${{ mypy_client_class }}, None, None]:
     '''Create a mock client'''
     s3_client = boto3.client('s3')
     yield s3_client
 
+@pytest.fixture()
 def ${{ mock_resource_identifier }}(${{ mock_client_name }}) -> str:
     '''Create a mock resource'''
     mock_bucket_name = 'MockBucket'
@@ -141,6 +142,7 @@ def ${{ mock_client_name }}(mocked_aws) -> Generator[${{ mypy_client_class }}, N
     sns_client = boto3.client('sns')
     yield sns_client
 
+@pytest.fixture()
 def ${{ mock_resource_identifier }}(${{ mock_client_name }}) -> str:
     '''Create a mock resource'''
     mock_topic_name = 'MockTopic'
@@ -153,6 +155,7 @@ def ${{ mock_client_name }}(mocked_aws) -> Generator[${{ mypy_client_class }}, N
     sqs_client = boto3.client('sqs')
     yield sqs_client
 
+@pytest.fixture()
 def ${{ mock_resource_identifier }}(${{ mock_client_name }}) -> str:
     '''Create a mock resource'''
     mock_queue_name = 'MockQueue'
@@ -165,6 +168,7 @@ def ${{ mock_client_name }}(mocked_aws) -> Generator[${{ mypy_client_class }}, N
     eventbridge_client = boto3.client('events')
     yield eventbridge_client
 
+@pytest.fixture()
 def ${{ mock_resource_identifier }}(${{ mock_client_name }}) -> str:
     '''Create a mock resource'''
     mock_bus_name = 'MockBus'
