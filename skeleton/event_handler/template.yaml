@@ -82,84 +82,85 @@ Resources:
     Properties:
       CodeUri: ./src/handlers/${{ values.function_name }}
       Handler: function.handler
-      {% if values.function_description -%}
+{% if values.function_description -%}
       Description: ${{ values.function_description }}
-      {%- endif %}
-      {% if event_source_id %}
+{%- endif %}
+{% if event_source_id %}
       Events:
         ${{ event_source_id }}:
           Type: ${{ sam_event_type }}
           Properties:
-            {% if values.event_source_type == 's3' -%}
+{% if values.event_source_type == 's3' -%}
             Bucket: !Ref ${{ event_source_id }}
             Events: s3:ObjectCreated:*    # Adjust as needed
-            {%- elif values.event_source_type == 'sns' -%}
+{%- elif values.event_source_type == 'sns' -%}
             Topic: !Ref ${{ event_source_id }}
-            {%- elif values.event_source_type == 'sqs' -%}
+{%- elif values.event_source_type == 'sqs' -%}
             Queue: !Ref ${{ event_source_id }}
             BatchSize: 1    # Adjust as needed
-            {%- elif values.event_source_type == 'eventbridge' -%}
+{%- elif values.event_source_type == 'eventbridge' -%}
             EventBus: !Ref ${{ event_source_id }}
-            {%- endif %}
-      {%- endif %}
-      {% if values.destination_type -%}
+{%- endif %}
+{%- endif %}
+{% if values.destination_type -%}
       Policies:
-        {% if values.event_source_type == 's3' -%}
+{% if values.event_source_type == 's3' -%}
         - S3ReadPolicy:
             BucketName: !Ref ${{ event_source_id }}
-        {% if values.destination_type == 's3' -%}
+{% endif %}
+{% if values.destination_type == 's3' -%}
         - S3PutObjectPolicy:
             BucketName: !Ref ${{ destination_id }}
-        {% elif values.destination_type == 'sns' -%}
+{% elif values.destination_type == 'sns' -%}
         - SNSPublishMessagePolicy:
             TopicName: !Ref ${{ destination_id }}
-        {% elif values.destination_type == 'sqs' -%}
+{% elif values.destination_type == 'sqs' -%}
         - SQSSendMessagePolicy:
             QueueName: !Ref ${{ destination_id }}
-        {% elif values.destination_type == 'eventbridge' -%}
+{% elif values.destination_type == 'eventbridge' -%}
         - EventBridgePutEventsPolicy:
             EventBusName: !Ref ${{ destination_id }}
-        {% endif %}
-      {% endif -%}
-      {% if values.destination_type -%}
+{% endif %}
+{% endif -%}
+{% if values.destination_type -%}
       Environment:
         Variables:
           ${{ destination_env_var }}: !Ref ${{ destination_id }}
-      {%- endif %}
+{%- endif %}
 
-  {% if values.event_source_type and values.create_event_source %}
-  {% if values.event_source_type == 's3' -%}
-  ${{ event_source_id }}:
+{% if values.event_source_type and values.create_event_source %}
+{% if values.event_source_type == 's3' -%}
+${{ event_source_id }}:
     Type: AWS::S3::Bucket
   {% elif values.event_source_type == 'sns' -%}
-  ${{ event_source_id }}:
+${{ event_source_id }}:
     Type: AWS::SNS::Topic
     Properties:
       DisplayName: ${{ values.function_name }} Source
-  {% elif values.event_source_type == 'sqs' -%}
-  ${{ event_source_id }}:
+{% elif values.event_source_type == 'sqs' -%}
+${{ event_source_id }}:
     Type: AWS::SQS::Queue
-  {% elif values.event_source_type == 'eventbridge' -%}
-  ${{ event_source_id }}:
+{% elif values.event_source_type == 'eventbridge' -%}
+${{ event_source_id }}:
     Type: AWS::Events:EventBus
-  {% endif %}
-  {% endif %}
+{% endif %}
+{% endif %}
 
-  {% if values.destination_type and values.create_destination -%}
-  {% if values.destination_type == 's3' -%}
+{% if values.destination_type and values.create_destination -%}
+{% if values.destination_type == 's3' -%}
   ${{ destination_id }}:
     Type: AWS::S3::Bucket
     Properties:
-  {% elif values.destination_type == 'sns' -%}
+{% elif values.destination_type == 'sns' -%}
   ${{ destination_id }}:
     Type: AWS::SNS::Topic
     Properties:
       DisplayName: ${{ values.function_name }} Destination
-  {% elif values.destination_type == 'sqs' -%}
+{% elif values.destination_type == 'sqs' -%}
   ${{ destination_id }}:
     Type: AWS::SQS::Queue
-  {% elif values.destination_type == 'eventbridge' -%}
+{% elif values.destination_type == 'eventbridge' -%}
   ${{ destination_id }}:
     Type: AWS::Events:EventBus
-  {% endif %}
-  {% endif %}
+{% endif %}
+{% endif %}
