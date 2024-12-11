@@ -285,11 +285,13 @@ spec:
             - s3
             - sns
             - sqs
+            - NONE
           enumNames:
             - EventBridge
             - S3
             - SNS
             - SQS
+            - None / Unknown
         create_destination:
           title: Create Destination
           type: boolean
