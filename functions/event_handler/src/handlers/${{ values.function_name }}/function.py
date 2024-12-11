@@ -45,7 +45,7 @@ from dataclasses import dataclass
 {% if values.destination_type %}
 import boto3
 from ${{ mypy_module }} import ${{ mypy_client_class }}
-{%if values.event_source_type == 's3' %}from mypy_boto3_s3.type_defs import $GetObjectOutputTypeDef{% endif %}
+{%if values.event_source_type == 's3' %}from mypy_boto3_s3.type_defs import GetObjectOutputTypeDef{% endif %}
 {%- endif %}
 from aws_lambda_powertools.logging import Logger
 from aws_lambda_powertools.utilities.typing import LambdaContext
