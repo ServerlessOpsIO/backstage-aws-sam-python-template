@@ -423,6 +423,12 @@ spec:
           - "domain:${{ parameters.domain | parseEntityRef | pick('name') }}"
           - "system:${{ parameters.system | parseEntityRef | pick('name') }}"
 
+    - id: show-files
+      name: Files Created
+      action: debug:log
+      input:
+        listWorkspace: true
+
     - id: display-gh-repo-url
       name: Github Repo URL
       action: debug:log
@@ -430,9 +436,3 @@ spec:
         message: |
           GitHub Repository Page: ${{ steps.publish.output.repoContentsUrl }}"
           Git URL: ${{ steps.publish.output.remoteUrl }}"
-
-    - id: show-files
-      name: Files Created
-      action: debug:log
-      input:
-        listWorkspace: true

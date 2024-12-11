@@ -241,3 +241,17 @@ spec:
       input:
         repoContentsUrl: ${{ steps.publish.output.repoContentsUrl }}
         catalogInfoPath: "/catalog-info.yaml"
+
+    - id: show-files
+      name: Files Created
+      action: debug:log
+      input:
+        listWorkspace: true
+
+    - id: display-gh-repo-url
+      name: Github Repo URL
+      action: debug:log
+      input:
+        message: |
+          GitHub Repository Page: ${{ steps.publish.output.repoContentsUrl }}"
+          Git URL: ${{ steps.publish.output.remoteUrl }}"
