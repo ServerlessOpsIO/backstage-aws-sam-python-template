@@ -20,15 +20,32 @@
 {% set event_data_source_class = 'AWSConfigRuleEvent' -%}
 {% else %}
 {% set event_data_source_class = 'Event' -%}
-{%- endif %}
-from dataclasses import asdict, dataclass
-{% if values.event_source_type == 'ddb' -%}
+{% endif -%}
+
+{%- if values.destination_type == 's3' -%}
+{% set mypy_module = 'mypy_boto3_s3' -%}
+{% set mypy_client_class = 'S3Client' -%}
+{% set mypy_type_defs = 'GetObjectOutputTypeDef' -%}
+
+{% elif values.destination_type == 'sns' -%}
+{% set mypy_module = 'mypy_boto3_sns' -%}
+{% set mypy_client_class = 'SNSClient' -%}
+
+{% elif values.destination_type == 'sqs' -%}
+{% set mypy_module = 'mypy_boto3_sqs' -%}
+{% set mypy_client_class = 'SQSClient' -%}
+
+{% elif values.destination_type == 'eventbridge' -%}
+{% set mypy_module = 'mypy_boto3_events' -%}
+{% set mypy_client_class = 'EventBridgeClient' -%}
+{% endif %}
+
+{% if values.destination_type %}import os{% endif %}
+from dataclasses import dataclass
+{% if values.destination_type %}
 import boto3
-from mypy_boto3_dynamodb import DynamoDBServiceResource
-{% elif values.event_source_type == 's3' -%}
-import boto3
-from mypy_boto3_s3 import S3Client
-from mypy_boto3_s3.type_defs import GetObjectOutputTypeDef
+from ${{ mypy_module }} import ${{ mypy_client_class }}
+{%if mypy_type_defs %}from ${{ mypy_module }}.type_defs import ${{ mypy_type_defs }}{% endif %}
 {%- endif %}
 from aws_lambda_powertools.logging import Logger
 from aws_lambda_powertools.utilities.typing import LambdaContext
@@ -40,33 +57,36 @@ from aws_lambda_powertools.utilities.data_classes import (
 {%- endif %}
 
 from common.model.${{ values.event_data_type_name }} import ${{ values.event_data_type_name_cap }}Data
-from common.util.dataclasses import lambda_dataclass_response
 
 LOGGER = Logger(utc=True)
 
 {#- Initialize AWS clients -#}
-{% if values.event_source_type == 'ddb' -%}
-DDB: DynamoDBServiceResource = boto3.resource('dynamodb', 'us-east-1')
-DDB_TABLE = DDB.Table(os.environ.get('DDB_TABLE_NAME', ''))
-{% elif values.event_source_type == 's3' %}
-S3_CLIENT: S3Client = boto3.client('s3')
-{% endif %}
+{% if values.destination_type == 's3' %}
+S3_CLIENT: ${{ mypy_client_class }} = boto3.client('s3')
+S3_BUCKET_NAME = os.environ.get('S3_BUCKET_NAME', 'UNSET')
+{% elif values.destination_type == 'sns' %}
+SNS_CLIENT: ${{ mypy_client_class }} = boto3.client('sns')
+SNS_TOPIC_ARN = os.environ.get('SNS_TOPIC_ARN', 'UNSET')
+{% elif values.destination_type == 'sqs' %}
+SQS_CLIENT: ${{ mypy_client_class }} = boto3.client('sqs')
+SQS_QUEUE_URL = os.environ.get('SQS_QUEUE_URL', 'UNSET')
+{% elif values.destination_type == 'eventbridge' %}
+EVENTBRIDGE_CLIENT: ${{ mypy_client_class }} = boto3.client('events')
+EVENT_BUS_NAME = os.environ.get('EVENT_BUS_NAME', 'UNSET')
+{% endif -%}
 
 {% if not values.event_source_type -%}
 @dataclass
 class Event:
     '''Function event'''
 {% endif %}
-@dataclass
-class Output:
-    '''Function output'''
 
-{# Common client tasks -#}
+{# Common client tasks #}
 {% if values.event_source_type == 'ddb' -%}
 def _put_ddb_item(item_data: ${{ values.event_data_type_name_cap }}Data) -> None:
     '''Put item in DynamoDB'''
     pass
-{% elif values.event_source_type == 's3' %}
+{% elif values.event_source_type == 's3' -%}
 def _get_s3_object(bucket: str, key: str) -> GetObjectOutputTypeDef:
     '''Get object from S3'''
     return S3_CLIENT.get_object(Bucket=bucket, Key=key)
@@ -76,21 +96,24 @@ def _get_s3_object_contents(bucket: str, key: str) -> str:
     '''Get object from S3'''
     obj = S3_CLIENT.get_object(Bucket=bucket, Key=key)
     return obj['Body'].read().decode()
-{% endif %}
+{% endif -%}
 
 def _main(data: ${{ values.event_data_type_name_cap }}Data) -> None:
     '''Main work of function'''
-    pass
+    # Transform data
+
+    # Send data to destination
+
+    return
 
 
 @LOGGER.inject_lambda_context
-@lambda_dataclass_response
-{% if event_data_source_class -%}
-def handler(event, context: LambdaContext) -> Output:
+{% if not event_data_source_class -%}
+def handler(event, context: LambdaContext) -> None:
 {%- else -%}
 @event_source(data_class=${{ event_data_source_class }})
-def handler(event: ${{ event_data_source_class }}, context: LambdaContext) -> Output:
-{% endif -%}
+def handler(event: ${{ event_data_source_class }}, context: LambdaContext) -> None:
+{%- endif %}
     '''Event handler'''
     LOGGER.debug('Event', extra={"message_object": event})
 
@@ -115,7 +138,4 @@ def handler(event: ${{ event_data_source_class }}, context: LambdaContext) -> Ou
 {% elif values.event_source_type == 'config' %}
     _main(event)
 {%- endif %}
-    output = Output()
-
-    LOGGER.debug('Output', extra={"message_object": asdict(output)})
-    return output
+    return

@@ -241,39 +241,8 @@ spec:
           description: Memory size for the function
           default: 128
 
-    - title: Output Data
-      required: []
-      properties:
-        output_data_type_example:
-          type: string
-          title: Data Example
-          description: Example data
-          'ui:widget': 'textarea'
-          'ui:placeholder': |
-            {
-              "key": "value"
-            }
-          'ui:options':
-            rows: 10
-        output_data_type_schema:
-          type: string
-          title: Data JSON schema
-          description: JSON schema of data
-          'ui:widget': 'textarea'
-          'ui:placeholder': |
-            {
-                "$schema": "http://json-schema.org/draft-07/schema#",
-                "title": "Output",
-                "type": "object",
-                "properties": {},
-                "additionalProperties": true
-            }
-          'ui:options':
-            rows: 10
-
     - title: Data Destination
-      required:
-        - create_destination
+      required: []
       properties:
         destination_type:
           title: Destination Type
@@ -321,11 +290,10 @@ spec:
             - properties:
                 use_existing_destination:
                   const: true
-                destination_arn:
+                destination_id_value:
                   type: string
-                  title: Event Destination ARN
-                  description: ARN of the event data destination
-
+                  title: Event Destination Resource Identifier
+                  description: Identifier of the event data destination. Differs by destination type e.g. ARN, URL, name. etc.
 
   steps:
     - id: fetch
@@ -387,7 +355,7 @@ spec:
           event_source_arn: ${{ parameters.event_source_arn }}
           create_event_source: ${{ parameters.create_event_source }}
           destination_type: ${{ parameters.destination_type if parameters.destination_type != 'NONE' else nil }}
-          destination_arn: ${{ parameters.destination_arn }}
+          destination_id_value: ${{ parameters.destination_id_value }}
           create_destination: ${{ parameters.create_destination }}
           has_s3: ${{ true if parameters.event_source_type == 's3' or parameters.destination_type == 's3' else false }}
           has_sns: ${{ true if parameters.event_source_type == 'sns' or parameters.destination_type == 'sns' else false }}
@@ -415,8 +383,6 @@ spec:
           event_data_type_example: ${{ parameters.event_data_type_example }}
           event_data_type_schema: ${{ parameters.event_data_type_schema }}
           event_source_type: ${{ parameters.event_source_type if parameters.event_source_type != 'NONE' else nil }}
-          output_data_type_example: ${{ parameters.output_data_type_example }}
-          output_data_type_schema: ${{ parameters.output_data_type_schema }}
           destination_type: ${{ parameters.destination_type if parameters.destination_type != 'NONE' else nil }}
           has_s3: ${{ true if parameters.event_source_type == 's3' or parameters.destination_type == 's3' else false }}
           has_sns: ${{ true if parameters.event_source_type == 'sns' or parameters.destination_type == 'sns' else false }}

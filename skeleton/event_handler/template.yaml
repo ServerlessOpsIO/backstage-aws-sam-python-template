@@ -1,34 +1,38 @@
 {#- This needs to be kept in sync with cfn-parameters.json -#}
 {%- if values.event_source_type == 's3' -%}
-{% set event_source_id = 'SourceS3Bucket' -%}
-{% set sam_event_type = 'S3' %}
-{% elif values.event_source_type == 'sns' -%}
-{% set event_source_id = 'SourceSnsTopic' -%}
-{% set sam_event_type = 'SNS' %}
-{% elif values.event_source_type == 'sqs' -%}
-{% set event_source_id = 'SourceSqsQueue' -%}
-{% set sam_event_type = 'SQS' %}
-{% elif values.event_source_type == 'eventbridge' -%}
-{% set event_source_id = 'SourceEventBus' -%}
-{% set sam_event_type = 'EventBridgeRule' %}
+{%- set event_source_id = 'SourceS3Bucket' -%}
+{%- set sam_event_type = 'S3' %}
+{%- elif values.event_source_type == 'sns' -%}
+{%- set event_source_id = 'SourceSnsTopic' -%}
+{%- set sam_event_type = 'SNS' %}
+{%- elif values.event_source_type == 'sqs' -%}
+{%- set event_source_id = 'SourceSqsQueue' -%}
+{%- set sam_event_type = 'SQS' %}
+{%- elif values.event_source_type == 'eventbridge' -%}
+{%- set event_source_id = 'SourceEventBus' -%}
+{%- set sam_event_type = 'EventBridgeRule' %}
 {%- endif %}
+
 {%- if values.destination_type == 's3' -%}
-{% set destination_id = 'DestinationS3Bucket' -%}
-{% set destination_type = 'S3' -%}
-{% set destination_arn_attr = 'Arn' -%}
-{% elif values.destination_type == 'sns' -%}
-{% set destination_id = 'DestinationSnsTopic' -%}
-{% set destination_type = 'SNS' -%}
-{% set destination_arn_attr = 'TopicArn' -%}
-{% elif values.destination_type == 'sqs' -%}
-{% set destination_id = 'DestinationSqsQueue' -%}
-{% set destination_type = 'SQS' -%}
-{% set destination_arn_attr = 'Arn' -%}
-{% elif values.destination_type == 'eventbridge' -%}
-{% set destination_id = 'DestinationEventBus' -%}
-{% set destination_type = 'EventBridge' -%}
-{% set destination_arn_attr = 'Arn' -%}
-{%- endif %}
+{%- set destination_id = 'DestinationS3Bucket' -%}
+{%- set destination_type = 'S3' -%}
+{%- set destination_env_var = 'S3_BUCKET_NAME' -%}
+
+{%- elif values.destination_type == 'sns' -%}
+{%- set destination_id = 'DestinationSnsTopic' -%}
+{%- set destination_type = 'SNS' -%}
+{%- set destination_env_var = 'SNS_TOPIC_ARN' -%}
+
+{%- elif values.destination_type == 'sqs' -%}
+{%- set destination_id = 'DestinationSqsQueue' -%}
+{%- set destination_type = 'SQS' -%}
+{%- set destination_env_var = 'SQS_QUEUE_URL' -%}
+
+{%- elif values.destination_type == 'eventbridge' -%}
+{%- set destination_id = 'DestinationEventBus' -%}
+{%- set destination_type = 'EventBridge' -%}
+{%- set destination_env_var = 'EVENT_BUS_NAME' -%}
+{%- endif -%}
 AWSTemplateFormatVersion: '2010-09-09'
 Transform: AWS::Serverless-2016-10-31
 Description: |
@@ -54,8 +58,8 @@ Parameters:
   ${{ event_source_id }}:
     Type: String
     Description: 'ARN of ${{ sam_event_type }} event source'
-{% endif %}
-{% if values.destination_arn %}
+{%- endif %}
+{% if values.destination_id_value %}
   ${{ destination_id }}:
     Type: String
     Description: 'ARN of ${{ values.destination_type | capitalize }} destination'
@@ -84,7 +88,7 @@ Resources:
       {% if event_source_id %}
       Events:
         ${{ event_source_id }}:
-          Type: {{ values.event_source_type }}
+          Type: ${{ values.event_source_type }}
           Properties:
             {% if values.event_source_type == 's3' -%}
             Bucket: !Ref ${{ event_source_id }}
@@ -98,15 +102,27 @@ Resources:
             EventBus: !Ref ${{ event_source_id }}
             {%- endif %}
       {%- endif %}
-      {% if values.destination_type == 'sns' or values.destination_type == 'sqs' or values.destination_type == 'eventbridge' -%}
-      EventInvokeConfig:
-        MaximumEventAgeInSeconds: 60  # Adjust as needed
-        MaximumRetryAttempts: 2       # Adjust as needed
-        DestinationConfig:
-          OnSuccess:
-            Type: {{ values.destination_type }}
-            Destination: !GetAtt ${{ destination_id }}${{ ".${{ destination_arn_attr }}" if not values.destination_arn }}
-      {% endif %}
+      {% if values.destination_type -%}
+      Policies:
+        {% if values.destination_type == 's3' -%}
+        - S3PutObjectPolicy:
+            BucketName: !Ref ${{ destination_id }}
+        {% elif values.destination_type == 'sns' -%}
+        - SNSPublishMessagePolicy:
+            TopicName: !Ref ${{ destination_id }}
+        {% elif values.destination_type == 'sqs' -%}
+        - SQSSendMessagePolicy:
+            QueueName: !Ref ${{ destination_id }}
+        {% elif values.destination_type == 'eventbridge' -%}
+        - EventBridgePutEventsPolicy:
+            EventBusName: !Ref ${{ destination_id }}
+        {% endif %}
+      {% endif -%}
+      {% if values.destination_type -%}
+      Environment:
+        Variables:
+          ${{ destination_env_var }}: !Ref ${{ destination_id }}
+      {%- endif %}
 
   {% if values.event_source_type and values.create_event_source %}
   {% if values.event_source_type == 's3' -%}
