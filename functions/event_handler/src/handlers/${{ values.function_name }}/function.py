@@ -3,7 +3,6 @@
 {%- endif %}
 
 {%- if values.event_source_type == 's3' -%}
-{%- set src_mypy_client_class = 'mypy_boto3_s3' -%}
 {%- set event_data_source_class = 'S3Event' -%}
 {%- set data_type_class = "${{ values.event_data_type_name_cap }}Data" -%}
 
@@ -33,11 +32,9 @@
 {%- endif %}
 
 {%- if values.destination_type == 's3' -%}
-{% set mypy_module = 'mypy_boto3_s3' -%}
 {% set mypy_client_class = 'S3Client' -%}
 
 {% elif values.destination_type == 'sns' -%}
-{% set mypy_module = 'mypy_boto3_sns' -%}
 {% set mypy_client_class = 'SNSClient' -%}
 
 {% elif values.destination_type == 'sqs' -%}
@@ -45,7 +42,6 @@
 {% set mypy_client_class = 'SQSClient' -%}
 
 {% elif values.destination_type == 'eventbridge' -%}
-{% set mypy_module = 'mypy_boto3_events' -%}
 {% set mypy_client_class = 'EventBridgeClient' -%}
 
 {% endif -%}
@@ -56,14 +52,15 @@ import os
 {%- if not values.event_source_type %}
 from dataclasses import dataclass
 {%- endif %}
+{%- if values.event_source_type == 's3' %}
 from typing import TYPE_CHECKING
+{%- endif %}
 
 {%- if values.destination_type %}
 import boto3
 
-if TYPE_CHECKING:
-    from ${{ mypy_module }} import ${{ mypy_client_class }}
 {%- if values.event_source_type == 's3' %}
+if TYPE_CHECKING:
     from mypy_boto3_s3.type_defs import GetObjectOutputTypeDef
 {%- endif %}
 {%- endif %}
@@ -112,8 +109,10 @@ def _put_ddb_item(item_data: ${{ values.event_data_type_name_cap }}Data) -> None
     pass
 
 {%- elif values.event_source_type == 's3' %}
-def _get_s3_object(bucket: str, key: str) -> GetObjectOutputTypeDef:
+def _get_s3_object(bucket: str, key: str) -> 'GetObjectOutputTypeDef':
     '''Get object from S3'''
+    # NOTE: 'GetObjectOutputTypeDef' needs to be quoted to work with it's earlier conditional
+    # import. This is called a type hint Forward Reference
     return S3_CLIENT.get_object(Bucket=bucket, Key=key)
 
 
