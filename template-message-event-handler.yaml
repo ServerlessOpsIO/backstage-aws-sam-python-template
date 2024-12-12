@@ -165,8 +165,8 @@ spec:
                   const: true
                 event_source_arn:
                   type: string
-                  title: Event Source ARN
-                  description: ARN of the event source
+                  title: Event Destination Source Identifier
+                  description: Identifier of the event source. Differs by destination type e.g. ARN, URL, name. etc.
 
     - title: Event Data
       required:
