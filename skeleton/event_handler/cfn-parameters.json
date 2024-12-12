@@ -18,8 +18,12 @@
 {% set destination_id = 'DestinationEventBus' -%}
 {%- endif %}
 {
-	{% if values.event_source_arn -%}"${{ event_source_id }}": "${{ values.event_source_arn }}",{% endif %}
-	{% if values.destination_id_value -%}"${{ destination_id }}": "${{ values.destination_id_value }}",{% endif %}
+	{%- if values.event_source_arn %}
+    "${{ event_source_id }}": "${{ values.event_source_arn }}",
+    {%- endif %}
+	{%- if values.destination_id_value %}
+    "${{ destination_id }}": "${{ values.destination_id_value }}",
+    {%- endif %}
     "Domain": "${{ values.domain_name }}",
     "System": "${{ values.system_name }}",
     "Component": $env.GITHUB_REPOSITORY_NAME_PART_SLUG_CS,
