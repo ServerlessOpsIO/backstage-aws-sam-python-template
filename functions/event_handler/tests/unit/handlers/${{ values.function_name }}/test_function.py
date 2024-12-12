@@ -48,15 +48,19 @@ import json
 import jsonschema
 import os
 from types import ModuleType
+from typing import Generator
 
 import pytest
 from pytest_mock import MockerFixture
 
-{%- if values.destination_type %}
+{% if values.destination_type or values.event_source_type == 's3' %}
 import boto3
 from ${{ mypy_module }} import ${{ mypy_client_class }}
-from moto import mock_aws
+{%- if values.event_source_type == 's3' and values.destination_type != 's3' %}
+from mypy_boto3_s3 import S3Client
 {%- endif %}
+from moto import mock_aws
+{% endif %}
 
 {%- if values.event_source_type %}
 from aws_lambda_powertools.utilities.data_classes import ${{ event_data_source_class }}
@@ -67,7 +71,7 @@ from common.model.${{ values.event_data_type_name }} import ${{ values.event_dat
 from common.test.aws import create_lambda_function_context
 {%- if not values.event_source_type %}
 from src.handlers.${{ values.function_name }}.function import Event
-{%- endif %}
+{% endif %}
 
 FN_NAME = '${{ values.function_name }}'
 DATA_DIR = './data'
@@ -124,21 +128,22 @@ def mocked_aws(aws_credentials):
     with mock_aws():
         yield
 
-{%- if values.destination_type == 's3' %}
+{# Mock clients #}
+{%- if values.destination_type == 's3' or values.event_source_type == 's3' %}
 @pytest.fixture()
-def ${{ mock_client_name }}(mocked_aws) -> Generator[${{ mypy_client_class }}, None, None]:
+def mock_s3_client(mocked_aws) -> Generator[S3Client, None, None]:
     '''Create a mock client'''
     s3_client = boto3.client('s3')
     yield s3_client
 
 @pytest.fixture()
-def ${{ mock_resource_identifier }}(${{ mock_client_name }}) -> str:
+def mock_s3_bucket_name(mock_s3_client) -> str:
     '''Create a mock resource'''
     mock_bucket_name = 'MockBucket'
     mock_s3_client.create_bucket(Bucket=mock_bucket_name)
     return mock_bucket_name
-
-{%- elif values.destination_type == 'sns' %}
+{% endif %}
+{%- if values.destination_type == 'sns' %}
 @pytest.fixture()
 def ${{ mock_client_name }}(mocked_aws) -> Generator[${{ mypy_client_class }}, None, None]:
     sns_client = boto3.client('sns')
