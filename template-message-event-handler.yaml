@@ -1,0 +1,445 @@
+---
+apiVersion: scaffolder.backstage.io/v1beta3
+kind: Template
+metadata:
+  name: aws-sam-python-message-event-handler
+  title: AWS Serverless Message Event Handler (Python)
+  description: |
+    Create a Python AWS serverless message event handler.
+
+    Supports the following event sources:
+    * Amazon EventBridge
+    * Amazon S3
+    * Amazon SNS
+    * Amazon SQS
+
+    This template provides the following for the newly created Component
+
+    * Lambda function
+      * With starter code
+      * With starter tests
+      * With starter mock data and schemas
+    * GitHub Actions build and deploy workflows
+
+  tags:
+    - aws
+    - serverless
+    - python
+    - messaging
+    - event-handler
+
+spec:
+  owner: developers
+  type: component
+
+  parameters:
+    - title: Component Info
+      required:
+        - lifecycle
+        - namespace
+        - github_org
+        - component_name
+        - description
+        - owner
+        - system
+        - domain
+        - account_id
+      properties:
+        lifecycle:
+          title: Lifecycle
+          type: string
+          description: Lifecycle for the component
+          default: production
+          ui:widget: hidden
+        namespace:
+          title: Namespace
+          type: string
+          description: Namespace for the component
+          default: default
+          ui:widget: hidden
+        github_org:
+          title: GitHub Org
+          type: string
+          description: GitHub organization to publish to
+          default: ServerlessOpsIO
+          ui:widget: hidden
+        component_name:
+          title: Name
+          type: string
+          description: Unique name of the component
+          ui:field: EntityNamePicker
+        description:
+          title: Description
+          type: string
+          description: Short description of the component
+        owner:
+          title: Owner
+          type: string
+          description: |
+            Owning group of entity.
+          ui:field: MyGroupsPicker
+          ui:options:
+            allowArbitraryValues: false
+        domain:
+          title: Domain
+          type: string
+          description: Domain the component belongs to.
+          ui:field: SoContextualEntityPicker
+          ui:options:
+            allowArbitraryValues: false
+            catalogFilter:
+              - kind: Domain
+            defaultKind: Domain
+        system:
+          title: System
+          type: string
+          description: System the component belongs to.
+          ui:field: SoContextualEntityPicker
+          ui:options:
+            allowArbitraryValues: false
+            catalogFilter:
+              - kind: System
+                relations.partOf: "{{ parameters.domain }}"
+            defaultKind: System
+        account_id:
+          title: Account ID
+          type: string
+          description: Cloud account to deploy to
+          ui:field: SoContextualEntityPicker
+          ui:options:
+            allowArbitraryValues: false
+            catalogFilter:
+              - kind: Resource
+                relations.partOf: "{{ parameters.system }}"
+                spec.type: cloud-account
+            defaultKind: System
+
+    - title: Event Source
+      required: []
+      properties:
+        event_source_type:
+          title: Event Source Type
+          type: string
+          description: Type of event source
+          # enum and enumNames must be kept in sync
+          enum:
+            - eventbridge
+            - s3
+            - sns
+            - sqs
+            - NONE
+          enumNames:
+            - EventBridge
+            - S3
+            - SNS
+            - SQS
+            - None / Unknown
+        create_event_source:
+          title: Create Event Source
+          type: boolean
+          description: Create the event source
+          default: true
+          'ui:widget': 'radio'
+      dependencies:
+        create_event_source:
+          oneOf:
+            - properties:
+                create_event_source:
+                  const: true
+            - properties:
+                create_event_source:
+                  const: false
+                use_existing_event_source:
+                  type: boolean
+                  title: Use existing Event Source?
+                  description: Whether or not to use an existing event source
+                  default: true
+                  'ui:widget': 'radio'
+        use_existing_event_source:
+          oneOf:
+            - properties:
+                use_existing_event_source:
+                  const: false
+            - properties:
+                use_existing_event_source:
+                  const: true
+                event_source_arn:
+                  type: string
+                  title: Event Destination Source Identifier
+                  description: Identifier of the event source. Differs by destination type e.g. ARN, URL, name. etc.
+
+    - title: Event Data
+      required:
+        - event_data_type_name
+      properties:
+        event_data_type_name:
+          title: Event Data Type Name
+          type: string
+          description: Name of the event data type
+          'ui:placeholder': thing
+        event_data_type_example:
+          type: string
+          title: Data Example
+          description: Example data
+          'ui:widget': 'textarea'
+          'ui:placeholder': |
+            {
+              "key": "value"
+            }
+          'ui:options':
+            rows: 10
+        event_data_type_schema:
+          type: string
+          title: Data JSON schema
+          description: JSON schema of data
+          'ui:widget': 'textarea'
+          'ui:placeholder': |
+            {
+                "$schema": "http://json-schema.org/draft-07/schema#",
+                "title": "Event",
+                "type": "object",
+                "properties": {},
+                "additionalProperties": true
+            }
+          'ui:options':
+            rows: 10
+
+    - title: Function Configuration
+      required:
+        - function_name
+        - python_version
+        - function_timeout
+        - function_memory_size
+        - event_data_type_name
+      properties:
+        function_name:
+          title: Function Name
+          type: string
+          description: Name of the function
+          'ui:placeholder': ThingProcessor
+        function_description:
+          title: Function Description
+          type: string
+          description: Short function description
+          'ui:placeholder': Process a thing
+        python_version:
+          title: Python Version
+          type: string
+          description: Python version to use
+          default: '3.13'
+          enum:
+            - '3.13'
+            - '3.12'
+        function_timeout:
+          title: Timeout
+          type: number
+          description: Timeout for the function
+          default: 5
+        function_memory_size:
+          title: Memory Size
+          type: number
+          description: Memory size for the function
+          default: 128
+
+    - title: Data Destination
+      required: []
+      properties:
+        destination_type:
+          title: Destination Type
+          type: string
+          description: Type of destination
+          # enum and enumNames must be kept in sync
+          enum:
+            - eventbridge
+            - s3
+            - sns
+            - sqs
+            - NONE
+          enumNames:
+            - EventBridge
+            - S3
+            - SNS
+            - SQS
+            - None / Unknown
+        create_destination:
+          title: Create Destination
+          type: boolean
+          description: Create the destination
+          default: true
+          'ui:widget': 'radio'
+      dependencies:
+        create_destination:
+          oneOf:
+            - properties:
+                create_destination:
+                  const: true
+            - properties:
+                create_destination:
+                  const: false
+                use_existing_destination:
+                  type: boolean
+                  title: Use existing Event Destination?
+                  description: Whether or not to use an existing event data destination
+                  default: true
+                  'ui:widget': 'radio'
+        use_existing_destination:
+          oneOf:
+            - properties:
+                use_existing_destination:
+                  const: false
+            - properties:
+                use_existing_destination:
+                  const: true
+                destination_id_value:
+                  type: string
+                  title: Event Destination Resource Identifier
+                  description: Identifier of the event data destination. Differs by destination type e.g. ARN, URL, name. etc.
+
+  steps:
+    - id: fetch
+      name: Fetch Entity References
+      action: catalog:fetch
+      input:
+        entityRefs:
+          - ${{ parameters.owner }}
+          - ${{ parameters.domain }}
+          - ${{ parameters.system }}
+          - ${{ parameters.account_id }}
+
+    - id: create-skeleton
+      name: Create project skeleton
+      action: fetch:template
+      input:
+        url: ./skeleton/base
+        values:
+          domain_name: ${{ parameters.domain | parseEntityRef | pick('name') }}
+          system_name: ${{ parameters.system | parseEntityRef | pick('name') }}
+          component_name: ${{ parameters.component_name }}
+          owner_name: ${{ parameters.system | parseEntityRef | pick('name') }}
+          description: ${{ parameters.description }}
+          api_description: ${{ parameters.api_description }}
+          hostname: ${{ parameters.hostname }}
+          event_source_type: ${{ parameters.event_source_type if parameters.event_source_type != 'NONE' else nil }}
+          event_data_type_name: ${{ parameters.event_data_type_name }}
+          event_data_type_name_cap: ${{ parameters.event_data_type_name | capitalize }}
+          destination_type: ${{ parameters.destination_type if parameters.destination_type != 'NONE' else nil }}
+          github_org: ${{ parameters.github_org }}
+          lifecycle: ${{ parameters.lifecycle }}
+          python_version: ${{ parameters.python_version }}
+          has_s3: ${{ true if parameters.event_source_type == 's3' or parameters.destination_type == 's3' else false }}
+          has_sns: ${{ true if parameters.event_source_type == 'sns' or parameters.destination_type == 'sns' else false }}
+          has_sqs: ${{ true if parameters.event_source_type == 'sqs' or parameters.destination_type == 'sqs' else false }}
+          has_eventbridge: ${{ true if parameters.event_source_type == 'eventbridge' or parameters.destination_type == 'eventbridge' else false }}
+          has_cloudwatch_alarm: ${{ true if parameters.event_source_type == 'cloudwatch_alarm' else false }}
+          has_cloudwatch_log: ${{ true if parameters.event_source_type == 'cloudwatch_event' else false }}
+          has_config: ${{ true if parameters.event_source_type == 'config' else false }}
+          has_ddb: ${{ true if parameters.destination_type == 'dynamodb' else false }}
+
+    - id: add-event-handler-skeleton
+      name: Add Event Handler skeleton
+      action: fetch:template
+      input:
+        url: ./skeleton/event_handler
+        values:
+          domain_name: ${{ parameters.domain | parseEntityRef | pick('name') }}
+          system_name: ${{ parameters.system | parseEntityRef | pick('name') }}
+          component_name: ${{ parameters.component_name }}
+          owner_name: ${{ parameters.system | parseEntityRef | pick('name') }}
+          description: ${{ parameters.description }}
+          function_name: ${{ parameters.function_name }}
+          function_description: ${{ parameters.function_description }}
+          python_version: ${{ parameters.python_version }}
+          event_data_type_name: ${{ parameters.event_data_type_name }}
+          event_data_type_name_cap: ${{ parameters.event_data_type_name | capitalize }}
+          event_source_type: ${{ parameters.event_source_type if parameters.event_source_type != 'NONE' else nil }}
+          event_source_arn: ${{ parameters.event_source_arn }}
+          create_event_source: ${{ parameters.create_event_source }}
+          destination_type: ${{ parameters.destination_type if parameters.destination_type != 'NONE' else nil }}
+          destination_id_value: ${{ parameters.destination_id_value }}
+          create_destination: ${{ parameters.create_destination }}
+          has_s3: ${{ true if parameters.event_source_type == 's3' or parameters.destination_type == 's3' else false }}
+          has_sns: ${{ true if parameters.event_source_type == 'sns' or parameters.destination_type == 'sns' else false }}
+          has_sqs: ${{ true if parameters.event_source_type == 'sqs' or parameters.destination_type == 'sqs' else false }}
+          has_eventbridge: ${{ true if parameters.event_source_type == 'eventbridge' or parameters.destination_type == 'eventbridge' else false }}
+          has_cloudwatch_alarm: ${{ true if parameters.event_source_type == 'cloudwatch_alarm' else false }}
+          has_cloudwatch_log: ${{ true if parameters.event_source_type == 'cloudwatch_event' else false }}
+          has_config: ${{ true if parameters.event_source_type == 'config' else false }}
+          has_ddb: ${{ true if parameters.destination_type == 'dynamodb' else false }}
+
+    - id: create-functions
+      name: Create project functions
+      action: fetch:template
+      input:
+        url: ./functions/event_handler
+        values:
+          domain_name: ${{ parameters.domain | parseEntityRef | pick('name') }}
+          system_name: ${{ parameters.system | parseEntityRef | pick('name') }}
+          component_name: ${{ parameters.component_name }}
+          description: ${{ parameters.description }}
+          function_name: ${{ parameters.function_name }}
+          function_description: ${{ parameters.function_description }}
+          event_data_type_name: ${{ parameters.event_data_type_name }}
+          event_data_type_name_cap: ${{ parameters.event_data_type_name | capitalize }}
+          event_data_type_example: ${{ parameters.event_data_type_example }}
+          event_data_type_schema: ${{ parameters.event_data_type_schema }}
+          event_source_type: ${{ parameters.event_source_type if parameters.event_source_type != 'NONE' else nil }}
+          destination_type: ${{ parameters.destination_type if parameters.destination_type != 'NONE' else nil }}
+          has_s3: ${{ true if parameters.event_source_type == 's3' or parameters.destination_type == 's3' else false }}
+          has_sns: ${{ true if parameters.event_source_type == 'sns' or parameters.destination_type == 'sns' else false }}
+          has_sqs: ${{ true if parameters.event_source_type == 'sqs' or parameters.destination_type == 'sqs' else false }}
+          has_eventbridge: ${{ true if parameters.event_source_type == 'eventbridge' or parameters.destination_type == 'eventbridge' else false }}
+          has_cloudwatch_alarm: ${{ true if parameters.event_source_type == 'cloudwatch_alarm' else false }}
+          has_cloudwatch_log: ${{ true if parameters.event_source_type == 'cloudwatch_event' else false }}
+          has_config: ${{ true if parameters.event_source_type == 'config' else false }}
+          has_ddb: ${{ true if parameters.destination_type == 'dynamodb' else false }}
+
+    - id: cluster-pipeline
+      name: Create CI/CD pipeline
+      action: fetch:template
+      input:
+        url: ./pipeline
+        values:
+          domain_name: ${{ parameters.domain | parseEntityRef | pick('name') }}
+          system_name: ${{ parameters.system | parseEntityRef | pick('name') }}
+          python_version: ${{ parameters.python_version }}
+
+    - id: publish
+      name: Publish to GitHub
+      action: publish:github
+      input:
+        owner: tmclaugh
+        repoUrl: github.com?repo=${{ parameters.component_name }}&owner=${{ parameters.github_org }}
+        repoVisibility: public
+        protectDefaultBranch: false
+        requiredApprovingReviewCount: 0
+        description: ${{ parameters.description }}
+        gitAuthorName: ${{ user.entity.spec.profile.displayName }}
+        gitAuthorEmail:  ${{ user.entity.spec.profile.email }}
+        gitCommitMessage: "Initial commit via Backstage"
+        defaultBranch: main
+        secrets:
+          DEPLOYMENT_ACCOUNT_ID: ${{ steps.fetch.output.entities[3].metadata.title }}
+        topics:
+          - "domain:${{ parameters.domain | parseEntityRef | pick('name') }}"
+          - "system:${{ parameters.system | parseEntityRef | pick('name') }}"
+
+    - id: register
+      name: Register in Backstage
+      action: catalog:register
+      input:
+        repoContentsUrl: ${{ steps.publish.output.repoContentsUrl }}
+        catalogInfoPath: "/catalog-info.yaml"
+
+    - id: show-files
+      name: Files Created
+      action: debug:log
+      input:
+        listWorkspace: true
+
+    - id: display-gh-repo-url
+      name: Github Repo URL
+      action: debug:log
+      input:
+        message: |
+          GitHub Repository Page: ${{ steps.publish.output.repoContentsUrl }}"
+          Git URL: ${{ steps.publish.output.remoteUrl }}"

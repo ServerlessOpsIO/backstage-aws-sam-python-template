@@ -189,9 +189,6 @@ spec:
           hostname: ${{ parameters.hostname }}
           collection_name: ${{ parameters.collection_name }}
           collection_name_cap: ${{ parameters.collection_name | capitalize }}
-          github_org: ${{ parameters.github_org }}
-          lifecycle: ${{ parameters.lifecycle }}
-          python_version: ${{ parameters.python_version }}
           url_path_prefix: ${{ parameters.url_path_prefix }}
 
     - id: create-functions
@@ -244,3 +241,17 @@ spec:
       input:
         repoContentsUrl: ${{ steps.publish.output.repoContentsUrl }}
         catalogInfoPath: "/catalog-info.yaml"
+
+    - id: show-files
+      name: Files Created
+      action: debug:log
+      input:
+        listWorkspace: true
+
+    - id: display-gh-repo-url
+      name: Github Repo URL
+      action: debug:log
+      input:
+        message: |
+          GitHub Repository Page: ${{ steps.publish.output.repoContentsUrl }}"
+          Git URL: ${{ steps.publish.output.remoteUrl }}"

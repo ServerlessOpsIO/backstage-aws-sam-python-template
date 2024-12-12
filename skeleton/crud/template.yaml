@@ -6,7 +6,7 @@ Description: |
 Parameters:
   Domain:
     Type: String
-    Description: 'Application Platform'
+    Description: 'Application Domain'
 
   System:
     Type: String

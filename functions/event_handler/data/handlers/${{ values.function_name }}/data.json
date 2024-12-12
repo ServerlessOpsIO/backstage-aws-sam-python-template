@@ -1,0 +1,1 @@
+${{ values.event_data_type_example if values.event_data_type_example else "{}" }}
