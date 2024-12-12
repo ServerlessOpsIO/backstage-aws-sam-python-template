@@ -42,7 +42,7 @@
 {%- set mypy_module = 'mypy_boto3_events' -%}
 {%- set mypy_client_class = 'EventBridgeClient' -%}
 {%- set destination_env_var = 'EVENT_BUS_NAME' -%}
-{%- endif -%}
+{%- endif %}
 from dataclasses import asdict
 import json
 import jsonschema
