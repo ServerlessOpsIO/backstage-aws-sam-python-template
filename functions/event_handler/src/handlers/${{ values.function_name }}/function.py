@@ -53,7 +53,9 @@
 {%- if values.destination_type %}
 import os
 {%- endif %}
+{%- if not values.event_source_type %}
 from dataclasses import dataclass
+{%- endif %}
 from typing import TYPE_CHECKING
 
 {%- if values.destination_type %}
