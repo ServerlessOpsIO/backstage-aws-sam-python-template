@@ -14,9 +14,9 @@
 {%- set event_data_source_class = 'CloudWatchLogsEvent' -%}
 {%- elif values.event_source_type == 'config' -%}
 {%- set event_data_source_class = 'AWSConfigRuleEvent' -%}
-{%- else %}
+{%- else -%}
 {%- set event_data_source_class = 'Event' %}
-{%- endif %}
+{%- endif -%}
 
 {%- if values.destination_type == 's3' -%}
 {%- set mock_client_name = 'mock_s3_client' -%}
@@ -42,7 +42,7 @@
 {%- set mypy_module = 'mypy_boto3_events' -%}
 {%- set mypy_client_class = 'EventBridgeClient' -%}
 {%- set destination_env_var = 'EVENT_BUS_NAME' -%}
-{% endif %}
+{%- endif -%}
 from dataclasses import asdict
 import json
 import jsonschema
@@ -53,20 +53,23 @@ from typing import TYPE_CHECKING, Generator
 import pytest
 from pytest_mock import MockerFixture
 
-{% if values.destination_type -%}
+{%- if values.destination_type %}
 import boto3
 if TYPE_CHECKING:
     from ${{ mypy_module }} import ${{ mypy_client_class }}
 from moto import mock_aws
-{% endif %}
-{% if values.event_source_type -%}
+{%- endif %}
+
+{%- if values.event_source_type %}
 from aws_lambda_powertools.utilities.data_classes import ${{ event_data_source_class }}
-{% endif -%}
+{%- endif %}
 from aws_lambda_powertools.utilities.typing import LambdaContext
 
 from common.model.${{ values.event_data_type_name }} import ${{ values.event_data_type_name_cap }}Data
 from common.test.aws import create_lambda_function_context
-{% if not values.event_source_type %}from src.handlers.${{ values.function_name }}.function import Event{% endif %}
+{%- if not values.event_source_type %}
+from src.handlers.${{ values.function_name }}.function import Event
+{%- endif %}
 
 FN_NAME = '${{ values.function_name }}'
 DATA_DIR = './data'
@@ -104,7 +107,7 @@ def event_schema(schema=EVENT_SCHEMA):
     with open(schema) as f:
         return json.load(f)
 
-{% if values.destination_type %}
+{%- if values.destination_type %}
 # AWS Clients
 #
 # NOTE: Mocking AWS services must also be done before importing the function.
@@ -123,7 +126,7 @@ def mocked_aws(aws_credentials):
     with mock_aws():
         yield
 
-{% if values.destination_type == 's3' %}
+{%- if values.destination_type == 's3' %}
 @pytest.fixture()
 def ${{ mock_client_name }}(mocked_aws) -> Generator[${{ mypy_client_class }}, None, None]:
     '''Create a mock client'''
@@ -150,7 +153,7 @@ def ${{ mock_resource_identifier }}(${{ mock_client_name }}) -> str:
     mock_sns_client.create_topic(Name=mock_topic_name)
     return mock_topic_name
 
-{%- elif values.destination_type == 'sqs' -%}
+{%- elif values.destination_type == 'sqs' %}
 @pytest.fixture()
 def ${{ mock_client_name }}(mocked_aws) -> Generator[${{ mypy_client_class }}, None, None]:
     sqs_client = boto3.client('sqs')
@@ -163,7 +166,7 @@ def ${{ mock_resource_identifier }}(${{ mock_client_name }}) -> str:
     r = mock_sqs_client.create_queue(QueueName=mock_queue_name)
     return r['QueueUrl']
 
-{%- elif values.destination_type == 'eventbridge' -%}
+{%- elif values.destination_type == 'eventbridge' %}
 @pytest.fixture()
 def ${{ mock_client_name }}(mocked_aws) -> Generator[${{ mypy_client_class }}, None, None]:
     eventbridge_client = boto3.client('events')
@@ -176,7 +179,7 @@ def ${{ mock_resource_identifier }}(${{ mock_client_name }}) -> str:
     eventbridge_client.create_event_bus(Name=mock_bus_name)
     return mock_bus_name
 {%- endif %}
-{% endif %}
+{%- endif %}
 
 # Function
 @pytest.fixture()
@@ -226,7 +229,9 @@ def test_handler(
     mock_context,
     mock_event: ${{ event_data_source_class }},
     mock_data: ${{ values.event_data_type_name_cap }}Data,
-    {% if mock_client_name %}${{ mock_client_name }}: ${{ mypy_client_class }},{% endif %}
+    {%- if mock_client_name %}
+    ${{ mock_client_name }}: ${{ mypy_client_class }},
+    {%- endif %}
 ):
     '''Test calling handler'''
     # Call the function

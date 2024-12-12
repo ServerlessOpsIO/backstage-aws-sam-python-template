@@ -54,16 +54,19 @@ Parameters:
   CodeBranch:
     Type: String
     Description: "Name of deployment branch"
-{%- if values.event_source_arn %}
+
+{#- Handle existing event source and destination #}
+{% if values.event_source_arn %}
   ${{ event_source_id }}:
     Type: String
     Description: 'ARN of ${{ sam_event_type }} event source'
 {%- endif %}
-{%- if values.destination_id_value %}
+{% if values.destination_id_value %}
   ${{ destination_id }}:
     Type: String
     Description: 'ARN of ${{ values.destination_type | capitalize }} destination'
 {%- endif %}
+
 
 Globals:
   Function:

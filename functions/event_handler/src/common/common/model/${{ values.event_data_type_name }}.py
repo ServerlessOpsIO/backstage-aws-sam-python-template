@@ -1,5 +1,7 @@
 from dataclasses import dataclass
-{% if values.has_ddb %}from uuid import uuid4 as uuid{% endif %}
+{%- if values.has_ddb %}
+from uuid import uuid4 as uuid
+{%- endif %}
 
 COLLECTION_NAME = '${{ values.event_data_type_name }}'
 
@@ -8,7 +10,7 @@ class ${{ values.event_data_type_name_cap }}Data:
     '''${{ values.event_data_type_name_cap }} data'''
     pass
 
-{% if values.has_ddb -%}
+{%- if values.has_ddb %}
 @dataclass
 class ${{ values.event_data_type_name_cap }}ItemKeys:
     '''${{ values.event_data_type_name_cap }} DDB item keys'''
@@ -38,4 +40,4 @@ def get_keys_from_id(_id: str) -> ${{ values.event_data_type_name_cap }}ItemKeys
 def get_id_from_keys(keys: ${{ values.event_data_type_name_cap }}ItemKeys) -> str:
     '''Get id from keys'''
     return keys.pk.split('#')[1]
-{% endif -%}
+{% endif %}
