@@ -42,10 +42,13 @@
 
 {% if values.destination_type %}import os{% endif %}
 from dataclasses import dataclass
+from typing import TYPE_CHECKING
 {% if values.destination_type %}
 import boto3
-from ${{ mypy_module }} import ${{ mypy_client_class }}
-{%if values.event_source_type == 's3' %}from mypy_boto3_s3.type_defs import GetObjectOutputTypeDef{% endif %}
+
+if TYPE_CHECKING:
+    from ${{ mypy_module }} import ${{ mypy_client_class }}
+{%if values.event_source_type == 's3' %}    from mypy_boto3_s3.type_defs import GetObjectOutputTypeDef{% endif %}
 {%- endif %}
 from aws_lambda_powertools.logging import Logger
 from aws_lambda_powertools.utilities.typing import LambdaContext
@@ -61,20 +64,20 @@ from common.model.${{ values.event_data_type_name }} import ${{ values.event_dat
 LOGGER = Logger(utc=True)
 {# Initialize AWS clients #}
 {%- if values.event_source_type == 's3'%}
-S3_CLIENT: ${{ src_mypy_client_class }} = boto3.client('s3')
+S3_CLIENT = boto3.client('s3')
 S3_BUCKET_NAME = os.environ.get('S3_BUCKET_NAME', 'UNSET')
 {%- endif %}
 {% if values.destination_type == 's3' and not values.event_source_type == 's3' -%}
-S3_CLIENT: ${{ mypy_client_class }} = boto3.client('s3')
+S3_CLIENT = boto3.client('s3')
 S3_BUCKET_NAME = os.environ.get('S3_BUCKET_NAME', 'UNSET')
 {%- elif values.destination_type == 'sns' -%}
-SNS_CLIENT: ${{ mypy_client_class }} = boto3.client('sns')
+SNS_CLIENT = boto3.client('sns')
 SNS_TOPIC_ARN = os.environ.get('SNS_TOPIC_ARN', 'UNSET')
 {%- elif values.destination_type == 'sqs' -%}
-SQS_CLIENT: ${{ mypy_client_class }} = boto3.client('sqs')
+SQS_CLIENT = boto3.client('sqs')
 SQS_QUEUE_URL = os.environ.get('SQS_QUEUE_URL', 'UNSET')
 {%- elif values.destination_type == 'eventbridge' -%}
-EVENTBRIDGE_CLIENT: ${{ mypy_client_class }} = boto3.client('events')
+EVENTBRIDGE_CLIENT = boto3.client('events')
 EVENT_BUS_NAME = os.environ.get('EVENT_BUS_NAME', 'UNSET')
 {%- endif %}
 

@@ -48,14 +48,15 @@ import json
 import jsonschema
 import os
 from types import ModuleType
-from typing import Generator
+from typing import TYPE_CHECKING, Generator
 
 import pytest
 from pytest_mock import MockerFixture
 
 {% if values.destination_type -%}
 import boto3
-from ${{ mypy_module }} import ${{ mypy_client_class }}
+if TYPE_CHECKING:
+    from ${{ mypy_module }} import ${{ mypy_client_class }}
 from moto import mock_aws
 {% endif %}
 {% if values.event_source_type -%}
