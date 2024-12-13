@@ -6,7 +6,7 @@
 {%- set event_data_source_class = 'SNSEvent' -%}
 {%- elif values.event_source_type == 'sqs' -%}
 {%- set event_data_source_class = 'SQSEvent' -%}
-{%- elif values.event_source_type == 'eventbridge' -%}
+{%- elif values.event_source_type == 'eventbridge' or values.event_source_type == 'schedule' -%}
 {%- set event_data_source_class = 'EventBridgeEvent' -%}
 {%- elif values.event_source_type == 'cloudwatch_alarm' -%}
 {%- set event_data_source_class = 'CloudWatchAlarmEvent' -%}
@@ -221,7 +221,7 @@ def test_validate_event(mock_event, event_schema):
 ### Code Tests
 def test__main(
     mock_fn: ModuleType,
-    mock_data: ${{ values.event_data_type_name_cap }}Data
+    mock_data{% if values.event_data_type_name %}: ${{ values.event_data_type_name_cap }}Data{% endif %}
 ):
     '''Test _main function'''
     mock_fn._main(mock_data)
@@ -231,7 +231,7 @@ def test_handler(
     mock_fn: ModuleType,
     mock_context,
     mock_event: ${{ event_data_source_class }},
-    mock_data: ${{ values.event_data_type_name_cap }}Data,
+    mock_data{% if values.event_data_type_name %}: ${{ values.event_data_type_name_cap }}Data{% endif %}
     {%- if mock_client_name %}
     ${{ mock_client_name }}: ${{ mypy_client_class }},
     {%- endif %}

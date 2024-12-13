@@ -14,7 +14,7 @@
 {%- set event_data_source_class = 'SQSEvent' -%}
 {%- set data_type_class = "${{ values.event_data_type_name_cap }}Data" -%}
 
-{%- elif values.event_source_type == 'eventbridge' -%}
+{%- elif values.event_source_type == 'eventbridge' or values.event_source_type == 'schedule' -%}
 {%- set event_data_source_class = 'EventBridgeEvent' -%}
 {%- set data_type_class = "${{ values.event_data_type_name_cap }}Data" -%}
 
@@ -144,7 +144,7 @@ def handler(event: ${{ event_data_source_class }}, context: LambdaContext) -> No
 {%- elif values.event_source_type == 'sqs' %}
     for record in event.records:
         _main(record.body)
-{%- elif values.event_source_type == 'eventbridge' %}
+{%- elif values.event_source_type == 'eventbridge' or values.event_source_type == 'schedule' %}
     _main(event.detail)
 {%- elif values.event_source_type == 'cloudwatch_alarm' %}
     _main(event.alarm_data)

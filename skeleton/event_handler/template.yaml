@@ -10,7 +10,9 @@
 {%- set sam_event_type = 'SQS' %}
 {%- elif values.event_source_type == 'eventbridge' -%}
 {%- set event_source_id = 'SourceEventBus' -%}
-{%- set sam_event_type = 'EventBridgeRule' %}
+{%- elif values.event_source_type == 'schedule' -%}
+{%- set event_source_id = 'Schedule' -%}
+{%- set sam_event_type = 'ScheduleV2' %}
 {%- endif %}
 
 {%- if values.destination_type == 's3' -%}
@@ -67,7 +69,6 @@ Parameters:
     Description: 'ARN of ${{ values.destination_type | capitalize }} destination'
 {%- endif %}
 
-
 Globals:
   Function:
     Runtime: python${{ values.python_version }}
@@ -103,14 +104,12 @@ Resources:
             BatchSize: 1    # Adjust as needed
 {%- elif values.event_source_type == 'eventbridge' %}
             EventBus: !Ref ${{ event_source_id }}
+{%- elif values.event_source_type == 'schedule' %}
+            ScheduleExpression: ${{ values.event_schedule_expression }}
 {%- endif %}
 {%- endif %}
 {%- if values.destination_type %}
       Policies:
-{%- if values.event_source_type == 's3' %}
-        - S3ReadPolicy:
-            BucketName: !Ref ${{ event_source_id }}
-{%- endif %}
 {%- if values.destination_type == 's3' %}
         - S3PutObjectPolicy:
             BucketName: !Ref ${{ destination_id }}
