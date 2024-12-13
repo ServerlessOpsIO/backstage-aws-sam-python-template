@@ -26,7 +26,6 @@
 
 {%- elif values.event_source_type == 'config' -%}
 {%- set event_data_source_class = 'AWSConfigRuleEvent' -%}
-
 {%- endif %}
 
 {%- if values.destination_type == 's3' -%}
@@ -41,7 +40,6 @@
 
 {% elif values.destination_type == 'eventbridge' -%}
 {% set mypy_client_class = 'EventBridgeClient' -%}
-
 {% endif -%}
 
 {%- if values.destination_type %}
@@ -72,7 +70,9 @@ from aws_lambda_powertools.utilities.data_classes import (
 )
 {%- endif %}
 
+{%- if values.event_data_type_name %}
 from common.model.${{ values.event_data_type_name }} import ${{ values.event_data_type_name_cap }}Data
+{%- endif %}
 
 LOGGER = Logger(utc=True)
 {# Initialize AWS clients #}
@@ -115,7 +115,7 @@ def _get_s3_object_contents(bucket: str, key: str) -> str:
 
 {%- endif %}
 
-def _main(data: ${{ values.event_data_type_name_cap }}Data) -> None:
+def _main(data{% if values.event_data_type_name_cap %}: ${{ values.event_data_type_name_cap }}Data{% endif %}) -> None:
     '''Main work of function'''
     # Transform data
 

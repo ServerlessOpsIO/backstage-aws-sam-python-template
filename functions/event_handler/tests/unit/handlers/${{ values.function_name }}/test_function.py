@@ -65,7 +65,9 @@ from aws_lambda_powertools.utilities.data_classes import ${{ event_data_source_c
 {%- endif %}
 from aws_lambda_powertools.utilities.typing import LambdaContext
 
+{%- if values.event_data_type_name %}
 from common.model.${{ values.event_data_type_name }} import ${{ values.event_data_type_name_cap }}Data
+{% endif %}
 from common.test.aws import create_lambda_function_context
 
 FN_NAME = '${{ values.function_name }}'
@@ -77,6 +79,7 @@ DATA = os.path.join(FUNC_DATA_DIR, 'data.json')
 DATA_SCHEMA = os.path.join(FUNC_DATA_DIR, 'data.schema.json')
 
 ### Fixtures
+{%- if values.event_data_type_name %}
 # Data
 @pytest.fixture()
 def mock_data(data=DATA) -> ${{ values.event_data_type_name_cap }}Data:
@@ -89,6 +92,7 @@ def data_schema(data_schema=DATA_SCHEMA):
     '''Return a data schema'''
     with open(data_schema) as f:
         return json.load(f)
+{%- endif %}
 
 # FIXME: Need to handle differences between powertools event classes and the Event class
 # Event
@@ -203,10 +207,11 @@ def mock_fn(
 
 
 ### Data validation tests
+{%- if values.event_data_type_name %}
 def test_validate_data(mock_data, data_schema):
     '''Test data against schema'''
     jsonschema.Draft7Validator(asdict(mock_data), data_schema)
-
+{% endif %}
 # FIXME: Need to handle differences between powertools event classes and the Event class
 def test_validate_event(mock_event, event_schema):
     '''Test event against schema'''
