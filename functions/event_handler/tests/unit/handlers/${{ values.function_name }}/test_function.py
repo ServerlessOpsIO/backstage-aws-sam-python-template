@@ -14,8 +14,6 @@
 {%- set event_data_source_class = 'CloudWatchLogsEvent' -%}
 {%- elif values.event_source_type == 'config' -%}
 {%- set event_data_source_class = 'AWSConfigRuleEvent' -%}
-{%- else -%}
-{%- set event_data_source_class = 'Event' %}
 {%- endif -%}
 
 {%- if values.destination_type == 's3' -%}
@@ -69,9 +67,6 @@ from aws_lambda_powertools.utilities.typing import LambdaContext
 
 from common.model.${{ values.event_data_type_name }} import ${{ values.event_data_type_name_cap }}Data
 from common.test.aws import create_lambda_function_context
-{%- if not values.event_source_type %}
-from src.handlers.${{ values.function_name }}.function import Event
-{% endif %}
 
 FN_NAME = '${{ values.function_name }}'
 DATA_DIR = './data'
@@ -98,7 +93,7 @@ def data_schema(data_schema=DATA_SCHEMA):
 # FIXME: Need to handle differences between powertools event classes and the Event class
 # Event
 @pytest.fixture()
-def mock_event(e=EVENT) -> ${{ event_data_source_class }}:
+def mock_event(e=EVENT){% if event_data_source_class %} -> ${{ event_data_source_class }}{% endif %}:
     '''Return a function event'''
     with open(e) as f:
         return ${{ event_data_source_class }}(json.load(f))

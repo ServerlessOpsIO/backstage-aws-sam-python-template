@@ -127,13 +127,11 @@ spec:
             - s3
             - sns
             - sqs
-            - NONE
           enumNames:
             - EventBridge
             - S3
             - SNS
             - SQS
-            - None / Unknown
         create_event_source:
           title: Create Event Source
           type: boolean
@@ -210,7 +208,6 @@ spec:
         - python_version
         - function_timeout
         - function_memory_size
-        - event_data_type_name
       properties:
         function_name:
           title: Function Name

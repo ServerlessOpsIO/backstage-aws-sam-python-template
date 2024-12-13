@@ -27,8 +27,6 @@
 {%- elif values.event_source_type == 'config' -%}
 {%- set event_data_source_class = 'AWSConfigRuleEvent' -%}
 
-{%- else %}
-{%- set event_data_source_class = 'Event' -%}
 {%- endif %}
 
 {%- if values.destination_type == 's3' -%}
@@ -96,12 +94,6 @@ EVENTBRIDGE_CLIENT = boto3.client('events')
 EVENT_BUS_NAME = os.environ.get('EVENT_BUS_NAME', 'UNSET')
 {%- endif %}
 
-{%- if not values.event_source_type %}
-@dataclass
-class Event:
-    '''Function event'''
-{%- endif %}
-
 {# Common client tasks #}
 {%- if values.event_source_type == 'ddb' %}
 def _put_ddb_item(item_data: ${{ values.event_data_type_name_cap }}Data) -> None:
@@ -120,8 +112,8 @@ def _get_s3_object_contents(bucket: str, key: str) -> str:
     '''Get object from S3'''
     obj = S3_CLIENT.get_object(Bucket=bucket, Key=key)
     return obj['Body'].read().decode()
-{%- endif %}
 
+{%- endif %}
 
 def _main(data: ${{ values.event_data_type_name_cap }}Data) -> None:
     '''Main work of function'''
