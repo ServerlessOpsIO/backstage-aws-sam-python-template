@@ -6,7 +6,7 @@
 {%- set event_data_source_class = 'SNSEvent' -%}
 {%- elif values.event_source_type == 'sqs' -%}
 {%- set event_data_source_class = 'SQSEvent' -%}
-{%- elif values.event_source_type == 'eventbridge' -%}
+{%- elif values.event_source_type == 'eventbridge' or values.event_source_type == 'schedule' -%}
 {%- set event_data_source_class = 'EventBridgeEvent' -%}
 {%- elif values.event_source_type == 'cloudwatch_alarm' -%}
 {%- set event_data_source_class = 'CloudWatchAlarmEvent' -%}
@@ -14,8 +14,6 @@
 {%- set event_data_source_class = 'CloudWatchLogsEvent' -%}
 {%- elif values.event_source_type == 'config' -%}
 {%- set event_data_source_class = 'AWSConfigRuleEvent' -%}
-{%- else -%}
-{%- set event_data_source_class = 'Event' %}
 {%- endif -%}
 
 {%- if values.destination_type == 's3' -%}
@@ -67,11 +65,10 @@ from aws_lambda_powertools.utilities.data_classes import ${{ event_data_source_c
 {%- endif %}
 from aws_lambda_powertools.utilities.typing import LambdaContext
 
+{%- if values.event_data_type_name %}
 from common.model.${{ values.event_data_type_name }} import ${{ values.event_data_type_name_cap }}Data
-from common.test.aws import create_lambda_function_context
-{%- if not values.event_source_type %}
-from src.handlers.${{ values.function_name }}.function import Event
 {% endif %}
+from common.test.aws import create_lambda_function_context
 
 FN_NAME = '${{ values.function_name }}'
 DATA_DIR = './data'
@@ -82,6 +79,7 @@ DATA = os.path.join(FUNC_DATA_DIR, 'data.json')
 DATA_SCHEMA = os.path.join(FUNC_DATA_DIR, 'data.schema.json')
 
 ### Fixtures
+{%- if values.event_data_type_name %}
 # Data
 @pytest.fixture()
 def mock_data(data=DATA) -> ${{ values.event_data_type_name_cap }}Data:
@@ -94,11 +92,12 @@ def data_schema(data_schema=DATA_SCHEMA):
     '''Return a data schema'''
     with open(data_schema) as f:
         return json.load(f)
+{%- endif %}
 
 # FIXME: Need to handle differences between powertools event classes and the Event class
 # Event
 @pytest.fixture()
-def mock_event(e=EVENT) -> ${{ event_data_source_class }}:
+def mock_event(e=EVENT){% if event_data_source_class %} -> ${{ event_data_source_class }}{% endif %}:
     '''Return a function event'''
     with open(e) as f:
         return ${{ event_data_source_class }}(json.load(f))
@@ -208,10 +207,11 @@ def mock_fn(
 
 
 ### Data validation tests
+{%- if values.event_data_type_name %}
 def test_validate_data(mock_data, data_schema):
     '''Test data against schema'''
     jsonschema.Draft7Validator(asdict(mock_data), data_schema)
-
+{% endif %}
 # FIXME: Need to handle differences between powertools event classes and the Event class
 def test_validate_event(mock_event, event_schema):
     '''Test event against schema'''
@@ -221,7 +221,7 @@ def test_validate_event(mock_event, event_schema):
 ### Code Tests
 def test__main(
     mock_fn: ModuleType,
-    mock_data: ${{ values.event_data_type_name_cap }}Data
+    mock_data{% if values.event_data_type_name %}: ${{ values.event_data_type_name_cap }}Data{% endif %}
 ):
     '''Test _main function'''
     mock_fn._main(mock_data)
@@ -231,7 +231,7 @@ def test_handler(
     mock_fn: ModuleType,
     mock_context,
     mock_event: ${{ event_data_source_class }},
-    mock_data: ${{ values.event_data_type_name_cap }}Data,
+    mock_data{% if values.event_data_type_name %}: ${{ values.event_data_type_name_cap }}Data{% endif %}
     {%- if mock_client_name %}
     ${{ mock_client_name }}: ${{ mypy_client_class }},
     {%- endif %}

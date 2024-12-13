@@ -2,16 +2,10 @@
 apiVersion: scaffolder.backstage.io/v1beta3
 kind: Template
 metadata:
-  name: aws-sam-python-message-event-handler
-  title: AWS Serverless Message Event Handler (Python)
+  name: aws-sam-python-scheduled-event-handler
+  title: AWS Serverless Scheduled Event Handler (Python)
   description: |
-    Create a Python AWS serverless message event handler.
-
-    Supports the following event sources:
-    * Amazon EventBridge
-    * Amazon S3
-    * Amazon SNS
-    * Amazon SQS
+    Create a Python AWS serverless scheduled event handler.
 
     This template provides the following for the newly created Component
 
@@ -25,7 +19,7 @@ metadata:
     - aws
     - serverless
     - python
-    - messaging
+    - scheduled
     - event-handler
 
 spec:
@@ -114,93 +108,53 @@ spec:
                 spec.type: cloud-account
             defaultKind: System
 
-    - title: Event Source
-      required: []
+    - title: Scheduled Event
+      required:
+        - event_schedule_expression
       properties:
         event_source_type:
           title: Event Source Type
           type: string
           description: Type of event source
-          # enum and enumNames must be kept in sync
+          default: schedule
+          'ui:widget': 'hidden'
+        event_schedule_type:
+          title: Event Schedule Type
+          type: string
+          description: Type of event schedule
+          default: cron
           enum:
-            - eventbridge
-            - s3
-            - sns
-            - sqs
+            - cron
+            - rate
+            - at
           enumNames:
-            - EventBridge
-            - S3
-            - SNS
-            - SQS
-        create_event_source:
-          title: Create Event Source
-          type: boolean
-          description: Create the event source
-          default: true
-          'ui:widget': 'radio'
+            - Cron
+            - Rate
+            - At time
       dependencies:
-        create_event_source:
+        event_schedule_type:
           oneOf:
             - properties:
-                create_event_source:
-                  const: true
-            - properties:
-                create_event_source:
-                  const: false
-                use_existing_event_source:
-                  type: boolean
-                  title: Use existing Event Source?
-                  description: Whether or not to use an existing event source
-                  default: true
-                  'ui:widget': 'radio'
-        use_existing_event_source:
-          oneOf:
-            - properties:
-                use_existing_event_source:
-                  const: false
-            - properties:
-                use_existing_event_source:
-                  const: true
-                event_source_arn:
+                event_schedule_type:
+                  const: cron
+                event_schedule_expression:
+                  title: Schedule Expression
                   type: string
-                  title: Event Destination Source Identifier
-                  description: Identifier of the event source. Differs by destination type e.g. ARN, URL, name. etc.
-
-    - title: Event Data
-      required:
-        - event_data_type_name
-      properties:
-        event_data_type_name:
-          title: Event Data Type Name
-          type: string
-          description: Name of the event data type
-          'ui:placeholder': thing
-        event_data_type_example:
-          type: string
-          title: Data Example
-          description: Example data
-          'ui:widget': 'textarea'
-          'ui:placeholder': |
-            {
-              "key": "value"
-            }
-          'ui:options':
-            rows: 10
-        event_data_type_schema:
-          type: string
-          title: Data JSON schema
-          description: JSON schema of data
-          'ui:widget': 'textarea'
-          'ui:placeholder': |
-            {
-                "$schema": "http://json-schema.org/draft-07/schema#",
-                "title": "Event",
-                "type": "object",
-                "properties": {},
-                "additionalProperties": true
-            }
-          'ui:options':
-            rows: 10
+                  description: Schedule expression for the event; cron(minutes hours day_of_month month day_of_week year)
+            - properties:
+                event_schedule_type:
+                  const: rate
+                event_schedule_expression:
+                  title: Schedule Expression
+                  type: string
+                  description: Rate expression for the event; rate(value minute | minutes | hour | hours | day | days)
+            - properties:
+                event_schedule_type:
+                  const: at
+                event_schedule_expression:
+                  title: Schedule Expression
+                  type: string
+                  description: Time expression for the event; at(yyyy-mm-ddThh:mm:ss)
 
     - title: Function Configuration
       required:
@@ -213,12 +167,12 @@ spec:
           title: Function Name
           type: string
           description: Name of the function
-          'ui:placeholder': ThingProcessor
+          'ui:placeholder': ScheduledProcessor
         function_description:
           title: Function Description
           type: string
           description: Short function description
-          'ui:placeholder': Process a thing
+          'ui:placeholder': Run on schedule
         python_version:
           title: Python Version
           type: string
@@ -316,21 +270,15 @@ spec:
           description: ${{ parameters.description }}
           api_description: ${{ parameters.api_description }}
           hostname: ${{ parameters.hostname }}
-          event_source_type: ${{ parameters.event_source_type if parameters.event_source_type != 'NONE' else nil }}
-          event_data_type_name: ${{ parameters.event_data_type_name }}
-          event_data_type_name_cap: ${{ parameters.event_data_type_name | capitalize }}
+          event_source_type: ${{ parameters.event_source_type }}
           destination_type: ${{ parameters.destination_type if parameters.destination_type != 'NONE' else nil }}
           github_org: ${{ parameters.github_org }}
           lifecycle: ${{ parameters.lifecycle }}
           python_version: ${{ parameters.python_version }}
-          has_s3: ${{ true if parameters.event_source_type == 's3' or parameters.destination_type == 's3' else false }}
-          has_sns: ${{ true if parameters.event_source_type == 'sns' or parameters.destination_type == 'sns' else false }}
-          has_sqs: ${{ true if parameters.event_source_type == 'sqs' or parameters.destination_type == 'sqs' else false }}
-          has_eventbridge: ${{ true if parameters.event_source_type == 'eventbridge' or parameters.destination_type == 'eventbridge' else false }}
-          has_cloudwatch_alarm: ${{ true if parameters.event_source_type == 'cloudwatch_alarm' else false }}
-          has_cloudwatch_log: ${{ true if parameters.event_source_type == 'cloudwatch_event' else false }}
-          has_config: ${{ true if parameters.event_source_type == 'config' else false }}
-          has_ddb: ${{ true if parameters.destination_type == 'dynamodb' else false }}
+          has_s3: ${{ true if parameters.destination_type == 's3' else false }}
+          has_sns: ${{ true parameters.destination_type == 'sns' else false }}
+          has_sqs: ${{ true if parameters.destination_type == 'sqs' else false }}
+          has_eventbridge: ${{ true if parameters.destination_type == 'eventbridge' else false }}
 
     - id: add-event-handler-skeleton
       name: Add Event Handler skeleton
@@ -346,22 +294,15 @@ spec:
           function_name: ${{ parameters.function_name }}
           function_description: ${{ parameters.function_description }}
           python_version: ${{ parameters.python_version }}
-          event_data_type_name: ${{ parameters.event_data_type_name }}
-          event_data_type_name_cap: ${{ parameters.event_data_type_name | capitalize }}
-          event_source_type: ${{ parameters.event_source_type if parameters.event_source_type != 'NONE' else nil }}
-          event_source_arn: ${{ parameters.event_source_arn }}
-          create_event_source: ${{ parameters.create_event_source }}
+          event_source_type: ${{ parameters.event_source_type }}
+          event_schedule_expression: ${{ parameters.event_schedule_expression }}
           destination_type: ${{ parameters.destination_type if parameters.destination_type != 'NONE' else nil }}
           destination_id_value: ${{ parameters.destination_id_value }}
           create_destination: ${{ parameters.create_destination }}
-          has_s3: ${{ true if parameters.event_source_type == 's3' or parameters.destination_type == 's3' else false }}
-          has_sns: ${{ true if parameters.event_source_type == 'sns' or parameters.destination_type == 'sns' else false }}
-          has_sqs: ${{ true if parameters.event_source_type == 'sqs' or parameters.destination_type == 'sqs' else false }}
-          has_eventbridge: ${{ true if parameters.event_source_type == 'eventbridge' or parameters.destination_type == 'eventbridge' else false }}
-          has_cloudwatch_alarm: ${{ true if parameters.event_source_type == 'cloudwatch_alarm' else false }}
-          has_cloudwatch_log: ${{ true if parameters.event_source_type == 'cloudwatch_event' else false }}
-          has_config: ${{ true if parameters.event_source_type == 'config' else false }}
-          has_ddb: ${{ true if parameters.destination_type == 'dynamodb' else false }}
+          has_s3: ${{ true if parameters.destination_type == 's3' else false }}
+          has_sns: ${{ true parameters.destination_type == 'sns' else false }}
+          has_sqs: ${{ true if parameters.destination_type == 'sqs' else false }}
+          has_eventbridge: ${{ true if parameters.destination_type == 'eventbridge' else false }}
 
     - id: create-functions
       name: Create project functions
@@ -375,20 +316,12 @@ spec:
           description: ${{ parameters.description }}
           function_name: ${{ parameters.function_name }}
           function_description: ${{ parameters.function_description }}
-          event_data_type_name: ${{ parameters.event_data_type_name }}
-          event_data_type_name_cap: ${{ parameters.event_data_type_name | capitalize }}
-          event_data_type_example: ${{ parameters.event_data_type_example }}
-          event_data_type_schema: ${{ parameters.event_data_type_schema }}
-          event_source_type: ${{ parameters.event_source_type if parameters.event_source_type != 'NONE' else nil }}
+          event_source_type: ${{ parameters.event_source_type }}
           destination_type: ${{ parameters.destination_type if parameters.destination_type != 'NONE' else nil }}
-          has_s3: ${{ true if parameters.event_source_type == 's3' or parameters.destination_type == 's3' else false }}
-          has_sns: ${{ true if parameters.event_source_type == 'sns' or parameters.destination_type == 'sns' else false }}
-          has_sqs: ${{ true if parameters.event_source_type == 'sqs' or parameters.destination_type == 'sqs' else false }}
-          has_eventbridge: ${{ true if parameters.event_source_type == 'eventbridge' or parameters.destination_type == 'eventbridge' else false }}
-          has_cloudwatch_alarm: ${{ true if parameters.event_source_type == 'cloudwatch_alarm' else false }}
-          has_cloudwatch_log: ${{ true if parameters.event_source_type == 'cloudwatch_event' else false }}
-          has_config: ${{ true if parameters.event_source_type == 'config' else false }}
-          has_ddb: ${{ true if parameters.destination_type == 'dynamodb' else false }}
+          has_s3: ${{ true if parameters.destination_type == 's3' else false }}
+          has_sns: ${{ true parameters.destination_type == 'sns' else false }}
+          has_sqs: ${{ true if parameters.destination_type == 'sqs' else false }}
+          has_eventbridge: ${{ true if parameters.destination_type == 'eventbridge' else false }}
 
     - id: cluster-pipeline
       name: Create CI/CD pipeline

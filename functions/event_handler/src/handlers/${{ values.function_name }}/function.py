@@ -14,7 +14,7 @@
 {%- set event_data_source_class = 'SQSEvent' -%}
 {%- set data_type_class = "${{ values.event_data_type_name_cap }}Data" -%}
 
-{%- elif values.event_source_type == 'eventbridge' -%}
+{%- elif values.event_source_type == 'eventbridge' or values.event_source_type == 'schedule' -%}
 {%- set event_data_source_class = 'EventBridgeEvent' -%}
 {%- set data_type_class = "${{ values.event_data_type_name_cap }}Data" -%}
 
@@ -26,9 +26,6 @@
 
 {%- elif values.event_source_type == 'config' -%}
 {%- set event_data_source_class = 'AWSConfigRuleEvent' -%}
-
-{%- else %}
-{%- set event_data_source_class = 'Event' -%}
 {%- endif %}
 
 {%- if values.destination_type == 's3' -%}
@@ -43,7 +40,6 @@
 
 {% elif values.destination_type == 'eventbridge' -%}
 {% set mypy_client_class = 'EventBridgeClient' -%}
-
 {% endif -%}
 
 {%- if values.destination_type %}
@@ -74,7 +70,9 @@ from aws_lambda_powertools.utilities.data_classes import (
 )
 {%- endif %}
 
+{%- if values.event_data_type_name %}
 from common.model.${{ values.event_data_type_name }} import ${{ values.event_data_type_name_cap }}Data
+{%- endif %}
 
 LOGGER = Logger(utc=True)
 {# Initialize AWS clients #}
@@ -96,12 +94,6 @@ EVENTBRIDGE_CLIENT = boto3.client('events')
 EVENT_BUS_NAME = os.environ.get('EVENT_BUS_NAME', 'UNSET')
 {%- endif %}
 
-{%- if not values.event_source_type %}
-@dataclass
-class Event:
-    '''Function event'''
-{%- endif %}
-
 {# Common client tasks #}
 {%- if values.event_source_type == 'ddb' %}
 def _put_ddb_item(item_data: ${{ values.event_data_type_name_cap }}Data) -> None:
@@ -120,10 +112,10 @@ def _get_s3_object_contents(bucket: str, key: str) -> str:
     '''Get object from S3'''
     obj = S3_CLIENT.get_object(Bucket=bucket, Key=key)
     return obj['Body'].read().decode()
+
 {%- endif %}
 
-
-def _main(data: ${{ values.event_data_type_name_cap }}Data) -> None:
+def _main(data{% if values.event_data_type_name_cap %}: ${{ values.event_data_type_name_cap }}Data{% endif %}) -> None:
     '''Main work of function'''
     # Transform data
 
@@ -152,7 +144,7 @@ def handler(event: ${{ event_data_source_class }}, context: LambdaContext) -> No
 {%- elif values.event_source_type == 'sqs' %}
     for record in event.records:
         _main(record.body)
-{%- elif values.event_source_type == 'eventbridge' %}
+{%- elif values.event_source_type == 'eventbridge' or values.event_source_type == 'schedule' %}
     _main(event.detail)
 {%- elif values.event_source_type == 'cloudwatch_alarm' %}
     _main(event.alarm_data)
