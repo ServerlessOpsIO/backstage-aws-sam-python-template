@@ -23,7 +23,7 @@ metadata:
     - event-handler
 
 spec:
-  owner: developers
+  owner: group:00gjdgxs1ur6lsu
   type: component
 
   parameters:
