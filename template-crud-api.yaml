@@ -190,6 +190,7 @@ spec:
           collection_name: ${{ parameters.collection_name }}
           collection_name_cap: ${{ parameters.collection_name | capitalize }}
           url_path_prefix: ${{ parameters.url_path_prefix }}
+          python_version: ${{ parameters.python_version }}
 
     - id: create-functions
       name: Create project functions
