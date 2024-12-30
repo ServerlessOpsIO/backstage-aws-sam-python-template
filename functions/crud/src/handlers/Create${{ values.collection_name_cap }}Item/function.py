@@ -11,8 +11,6 @@ from aws_lambda_powertools.utilities.data_classes import event_source, APIGatewa
 from aws_lambda_powertools.utilities.typing import LambdaContext
 
 if TYPE_CHECKING:
-    from mypy_boto3_dynamodb import DynamoDBServiceResource
-    from mypy_boto3_dynamodb.service_resource import Table
     from mypy_boto3_dynamodb.type_defs import PutItemInputTablePutItemTypeDef
 
 from common.model.${{ values.collection_name }} import ${{ values.collection_name_cap }}Data, ${{ values.collection_name_cap }}ItemKeys, ${{ values.collection_name_cap }}Item, create_keys, get_id_from_keys
