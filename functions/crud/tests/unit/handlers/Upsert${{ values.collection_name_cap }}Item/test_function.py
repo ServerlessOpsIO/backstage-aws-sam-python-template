@@ -182,7 +182,7 @@ def test_validate_expected_response(mock_expected_response, expected_response_sc
 def test_handler(
     mock_fn: ModuleType,
     mock_event: APIGatewayProxyEvent,
-    mock_context,
+    mock_context: LambdaContext,
     mocked_aws,
     mock_data: ${{ values.collection_name_cap }}Data,
     mock_expected_output: Output,

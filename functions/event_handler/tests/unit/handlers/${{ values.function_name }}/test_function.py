@@ -229,7 +229,7 @@ def test__main(
 
 def test_handler(
     mock_fn: ModuleType,
-    mock_context,
+    mock_context: LambdaContext,
     mock_event: ${{ event_data_source_class }},
     mock_data{% if values.event_data_type_name %}: ${{ values.event_data_type_name_cap }}Data{% endif %}
     {%- if mock_client_name %}
