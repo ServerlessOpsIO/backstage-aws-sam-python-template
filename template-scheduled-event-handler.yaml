@@ -329,15 +329,12 @@ spec:
       input:
         url: ./pipeline
         values:
-          domain_name: ${{ parameters.domain | parseEntityRef | pick('name') }}
-          system_name: ${{ parameters.system | parseEntityRef | pick('name') }}
           python_version: ${{ parameters.python_version }}
 
     - id: publish
       name: Publish to GitHub
       action: publish:github
       input:
-        owner: tmclaugh
         repoUrl: github.com?repo=${{ parameters.component_name }}&owner=${{ parameters.github_org }}
         repoVisibility: public
         protectDefaultBranch: false
