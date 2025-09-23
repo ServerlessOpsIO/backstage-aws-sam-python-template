@@ -233,7 +233,6 @@ spec:
           system: ${{ parameters.system | parseEntityRef | pick('name') }}
           domain: ${{ parameters.domain | parseEntityRef | pick('name') }}
           owner: ${{ parameters.owner | parseEntityRef | pick('name') }}
-          lifecycle: ${{ parameters.lifecycle }}
 
     - id: register
       name: Register in Backstage
