@@ -68,7 +68,6 @@ from aws_lambda_powertools.utilities.typing import LambdaContext
 {%- if values.event_data_type_name %}
 from common.model.${{ values.event_data_type_name }} import ${{ values.event_data_type_name_cap }}Data
 {% endif %}
-from common.test.aws import create_lambda_function_context
 
 FN_NAME = '${{ values.function_name }}'
 DATA_DIR = './data'
@@ -185,9 +184,9 @@ def ${{ mock_resource_identifier }}(${{ mock_client_name }}) -> str:
 
 # Function
 @pytest.fixture()
-def mock_context(function_name=FN_NAME):
+def mock_context(lambda_function_context, function_name=FN_NAME):
     '''context object'''
-    return create_lambda_function_context(function_name)
+    return lambda_function_context(function_name)
 
 @pytest.fixture()
 def mock_fn(
