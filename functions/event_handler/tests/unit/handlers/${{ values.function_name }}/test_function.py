@@ -19,25 +19,25 @@
 {%- if values.destination_type == 's3' -%}
 {%- set mock_client_name = 'mock_s3_client' -%}
 {%- set mock_resource_identifier = 'mock_s3_bucket_name' -%}
-{%- set mypy_module = 'mypy_boto3_s3' -%}
+{%- set mypy_module = 'types_boto3_s3' -%}
 {%- set mypy_client_class = 'S3Client' -%}
 {%- set destination_env_var = 'S3_BUCKET_NAME' -%}
 {%- elif values.destination_type == 'sns' -%}
 {%- set mock_client_name = 'mock_sns_client' -%}
 {%- set mock_resource_identifier = 'mock_sns_topic_name' -%}
-{%- set mypy_module = 'mypy_boto3_sns' -%}
+{%- set mypy_module = 'types_boto3_sns' -%}
 {%- set mypy_client_class = 'SNSClient' -%}
 {%- set destination_env_var = 'SNS_TOPIC_ARN' -%}
 {%- elif values.destination_type == 'sqs' -%}
 {%- set mock_client_name = 'mock_sqs_client' -%}
 {%- set mock_resource_identifier = 'mock_sqs_queue_url' -%}
-{%- set mypy_module = 'mypy_boto3_sqs' -%}
+{%- set mypy_module = 'types_boto3_sqs' -%}
 {%- set mypy_client_class = 'SQSClient' -%}
 {%- set destination_env_var = 'SQS_QUEUE_URL' -%}
 {%- elif values.destination_type == 'eventbridge' -%}
 {%- set mock_client_name = 'mock_eventbridge_client' -%}
 {%- set mock_resource_identifier = 'mock_event_bus_name' -%}
-{%- set mypy_module = 'mypy_boto3_events' -%}
+{%- set mypy_module = 'types_boto3_events' -%}
 {%- set mypy_client_class = 'EventBridgeClient' -%}
 {%- set destination_env_var = 'EVENT_BUS_NAME' -%}
 {%- endif %}
@@ -55,7 +55,7 @@ from pytest_mock import MockerFixture
 import boto3
 from ${{ mypy_module }} import ${{ mypy_client_class }}
 {%- if values.event_source_type == 's3' and values.destination_type != 's3' %}
-from mypy_boto3_s3 import S3Client
+from types_boto3_s3 import S3Client
 {%- endif %}
 from moto import mock_aws
 {% endif %}

@@ -35,7 +35,7 @@
 {% set mypy_client_class = 'SNSClient' -%}
 
 {% elif values.destination_type == 'sqs' -%}
-{% set mypy_module = 'mypy_boto3_sqs' -%}
+{% set mypy_module = 'types_boto3_sqs' -%}
 {% set mypy_client_class = 'SQSClient' -%}
 
 {% elif values.destination_type == 'eventbridge' -%}
@@ -57,7 +57,7 @@ import boto3
 
 {%- if values.event_source_type == 's3' %}
 if TYPE_CHECKING:
-    from mypy_boto3_s3.type_defs import GetObjectOutputTypeDef
+    from types_boto3_s3.type_defs import GetObjectOutputTypeDef
 {%- endif %}
 {%- endif %}
 

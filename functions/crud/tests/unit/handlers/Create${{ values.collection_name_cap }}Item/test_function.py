@@ -12,7 +12,7 @@ from pytest_mock import MockerFixture
 
 import boto3
 from moto import mock_aws
-from mypy_boto3_dynamodb.service_resource import DynamoDBServiceResource, Table
+from types_boto3_dynamodb.service_resource import DynamoDBServiceResource, Table
 from aws_lambda_powertools.utilities.data_classes import APIGatewayProxyEvent
 from aws_lambda_powertools.utilities.typing import LambdaContext
 
