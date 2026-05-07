@@ -33,7 +33,7 @@ class ResponseBody:
     id: str
 
 
-def _create_item(item_data: ${{ values.collection_name_cap }}Data) -> str:
+def _main(item_data: ${{ values.collection_name_cap }}Data) -> str:
     '''Create a ${{ values.collection_name_cap }} in DDB'''
     item_keys = create_keys()
     item_data.id = get_id_from_keys(item_keys)

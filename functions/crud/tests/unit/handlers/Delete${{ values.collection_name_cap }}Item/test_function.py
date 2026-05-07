@@ -191,7 +191,7 @@ def test_handler(
     assert response_obj == mock_expected_response
 
 
-def test__delete_item(
+def test__main(
     mock_fn: ModuleType,
     mock_ddb_table_client: Table,
 ):
@@ -206,14 +206,14 @@ def test__delete_item(
         }
     )
     item_keys = ${{ values.collection_name_cap }}ItemKeys(**{'pk': '1234', 'sk': '1234'})
-    mock_fn._delete_item(item_keys)
+    mock_fn._main(item_keys)
 
     # Check item was deleted
     item = mock_ddb_table_client.get_item(Key=asdict(item_keys))
     assert item.get('Item') is None
 
 
-def test__delete_item_fails_when_not_present(
+def test__main_fails_when_not_present(
     mock_fn: ModuleType,
     mock_ddb_table_client: Table,
 ):
@@ -223,4 +223,4 @@ def test__delete_item_fails_when_not_present(
     with pytest.raises(
         mock_ddb_table_client.meta.client.exceptions.ConditionalCheckFailedException
     ):
-        mock_fn._delete_item(item_keys)
+        mock_fn._main(item_keys)

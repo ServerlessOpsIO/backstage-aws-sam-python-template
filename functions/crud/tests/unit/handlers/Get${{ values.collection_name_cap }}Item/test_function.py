@@ -232,7 +232,7 @@ def test_handler_fails_when_non_existing(
     assert response_obj.error == '${{ values.collection_name_cap }}Notfound'
 
 
-def test__get_item(
+def test__main(
     mock_fn: ModuleType,
     mock_data: ${{ values.collection_name_cap }}Data,
     mock_ddb_table_client: Table
@@ -245,14 +245,14 @@ def test__get_item(
     }
     mock_ddb_table_client.put_item(Item=mock_item)
 
-    item = mock_fn._get_item(item_keys)
+    item = mock_fn._main(item_keys)
     assert item == mock_data
 
 
-def test__get_item_when_non_existing(
+def test__main_when_non_existing(
     mock_fn: ModuleType,
 ):
     '''Test get item'''
     item_keys = ${{ values.collection_name_cap }}ItemKeys(**{'pk': '1234', 'sk': '1234'})
-    item = mock_fn._get_item(item_keys)
+    item = mock_fn._main(item_keys)
     assert item == None

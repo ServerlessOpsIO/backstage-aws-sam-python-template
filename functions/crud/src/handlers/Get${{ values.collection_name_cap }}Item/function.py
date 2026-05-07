@@ -38,7 +38,7 @@ class ErrorResponseBody():
     message: str
 
 
-def _get_item(item_keys: ${{ values.collection_name_cap }}ItemKeys) -> ${{ values.collection_name_cap }}Data | None:
+def _main(item_keys: ${{ values.collection_name_cap }}ItemKeys) -> ${{ values.collection_name_cap }}Data | None:
     '''Get a ${{ values.collection_name_cap }} in DDB'''
     ddb_get_item_args: GetItemInputTableGetItemTypeDef = {
         'Key': {

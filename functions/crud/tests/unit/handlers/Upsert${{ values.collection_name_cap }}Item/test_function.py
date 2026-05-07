@@ -211,7 +211,7 @@ def test_handler(
     assert response_obj == mock_expected_response
 
 
-def test__upsert_item(
+def test__main(
     mock_fn: ModuleType,
     mock_data: ${{ values.collection_name_cap }}Data,
     mock_ddb_table_client: Table,
@@ -227,10 +227,10 @@ def test__upsert_item(
 
     item_keys = ${{ values.collection_name_cap }}ItemKeys(**{'pk': '1234', 'sk': '1234'})
     item_data = mock_data
-    mock_fn._upsert_item(item_keys, item_data)
+    mock_fn._main(item_keys, item_data)
 
 
-def test__upsert_item_fails_when_item_does_not_exist(
+def test__main_item_fails_when_item_does_not_exist(
     mock_fn: ModuleType,
     mock_data: ${{ values.collection_name_cap }}Data,
     mock_ddb_table_client: Table,
@@ -241,4 +241,4 @@ def test__upsert_item_fails_when_item_does_not_exist(
     with pytest.raises(
         mock_ddb_table_client.meta.client.exceptions.ConditionalCheckFailedException
     ):
-        mock_fn._upsert_item(item_keys, item_data)
+        mock_fn._main(item_keys, item_data)

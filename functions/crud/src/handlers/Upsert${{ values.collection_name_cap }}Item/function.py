@@ -39,7 +39,7 @@ class ErrorResponseBody():
     message: str
 
 
-def _upsert_item(item_keys: ${{ values.collection_name_cap }}ItemKeys, item_data: ${{ values.collection_name_cap }}Data) -> None:
+def _main(item_keys: ${{ values.collection_name_cap }}ItemKeys, item_data: ${{ values.collection_name_cap }}Data) -> None:
     '''Upsert a ${{ values.collection_name_cap }} in DDB'''
     item = ${{ values.collection_name_cap }}Item(
         **{

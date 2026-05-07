@@ -208,7 +208,7 @@ def test_handler(
     assert response_obj == mock_expected_response
 
 
-def test__create_item(
+def test__main(
     mock_fn: ModuleType,
     mock_data: ${{ values.collection_name_cap }}Data,
     mock_ddb_table_client: Table,
@@ -216,14 +216,14 @@ def test__create_item(
     '''Test create item'''
     item_keys = ${{ values.collection_name_cap }}ItemKeys(**{'pk': '${{ values.collection_name_cap }}#1234', 'sk': '${{ values.collection_name_cap }}#1234'})
     item_data = mock_data
-    mock_fn._create_item(item_data)
+    mock_fn._main(item_keys, item_data)
 
     # Check item was created
     r = mock_ddb_table_client.get_item(Key=asdict(item_keys))
     assert r.get('Item') == { **asdict(item_keys), **asdict(item_data) }
 
 
-def test__create_item_fails_if_item_exists(
+def test__main_fails_if_item_exists(
     mock_fn: ModuleType,
     mock_data: ${{ values.collection_name_cap }}Data,
     mock_ddb_table_client: Table,
@@ -243,4 +243,4 @@ def test__create_item_fails_if_item_exists(
     with pytest.raises(
         mock_ddb_table_client.meta.client.exceptions.ConditionalCheckFailedException
     ):
-        mock_fn._create_item(item_data)
+        mock_fn._main(item_keys, item_data)

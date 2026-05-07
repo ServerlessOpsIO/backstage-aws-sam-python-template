@@ -34,7 +34,7 @@ class ResponseBody:
     request_id: str
 
 
-def _delete_item(item_keys: ${{ values.collection_name_cap }}ItemKeys) -> None:
+def _main(item_keys: ${{ values.collection_name_cap }}ItemKeys) -> None:
     '''delete a ${{ values.collection_name_cap }} in DDB'''
     ddb_args: DeleteItemInputTableDeleteItemTypeDef = {
         'Key': {
