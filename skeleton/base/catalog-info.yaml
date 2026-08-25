@@ -11,8 +11,10 @@ spec:
   lifecycle: ${{ values.lifecycle }}
   owner: group:${{ values.owner_name }}
   system: system:${{ values.system_name }}
+{% if values.is_crud %}
   providesApis:
-    - resource:${{ values.component_name }}
+    - api:${{ values.component_name }}
+{% endif %}
 
 {% if values.is_crud %}
 ---
