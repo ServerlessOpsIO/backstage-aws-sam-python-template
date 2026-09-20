@@ -39,6 +39,7 @@ spec:
         - owner
         - system
         - domain
+        - environment
         - account_id
       properties:
         lifecycle:
@@ -97,6 +98,17 @@ spec:
               - kind: System
                 relations.partOf: "{{ parameters.domain }}"
             defaultKind: System
+        environment:
+          title: Environment
+          type: string
+          description: Environment the component belongs to.
+          ui:field: SoContextualEntityPicker
+          ui:options:
+            allowArbitraryValues: false
+            catalogFilter:
+              - kind: Resource
+                relations.partOf: "{{ parameters.system }}"
+                spec.type: environment
         account_id:
           title: Account ID
           type: string
@@ -106,9 +118,9 @@ spec:
             allowArbitraryValues: false
             catalogFilter:
               - kind: Resource
-                relations.partOf: "{{ parameters.system }}"
+                relations.dependencyOf: "{{ parameters.environment }}"
                 spec.type: cloud-account
-            defaultKind: System
+
     - title: Software configuration
       required:
         - hostname
