@@ -150,10 +150,10 @@ spec:
           title: Python Version
           type: string
           description: Python version to use
-          default: '3.13'
+          default: '3.14'
           enum:
             - '3.13'
-            - '3.12'
+            - '3.14'
 
   steps:
     - id: fetch
