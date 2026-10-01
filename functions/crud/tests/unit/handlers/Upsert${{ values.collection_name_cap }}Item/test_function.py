@@ -5,7 +5,7 @@ import json
 import jsonschema
 import os
 from types import ModuleType
-from typing import cast, Generator, Tuple
+from typing import Generator
 
 import pytest
 from pytest_mock import MockerFixture
