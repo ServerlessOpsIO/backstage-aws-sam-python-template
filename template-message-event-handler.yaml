@@ -340,7 +340,7 @@ spec:
           has_sqs: ${{ true if parameters.event_source_type == 'sqs' or parameters.destination_type == 'sqs' else false }}
           has_eventbridge: ${{ true if parameters.event_source_type == 'eventbridge' or parameters.destination_type == 'eventbridge' else false }}
           has_cloudwatch_alarm: ${{ true if parameters.event_source_type == 'cloudwatch_alarm' else false }}
-          has_cloudwatch_log: ${{ true if parameters.event_source_type == 'cloudwatch_event' else false }}
+          has_cloudwatch_logs: ${{ true if parameters.event_source_type == 'cloudwatch_log' else false }}
           has_config: ${{ true if parameters.event_source_type == 'config' else false }}
           has_ddb: ${{ true if parameters.destination_type == 'dynamodb' else false }}
 
@@ -371,7 +371,7 @@ spec:
           has_sqs: ${{ true if parameters.event_source_type == 'sqs' or parameters.destination_type == 'sqs' else false }}
           has_eventbridge: ${{ true if parameters.event_source_type == 'eventbridge' or parameters.destination_type == 'eventbridge' else false }}
           has_cloudwatch_alarm: ${{ true if parameters.event_source_type == 'cloudwatch_alarm' else false }}
-          has_cloudwatch_log: ${{ true if parameters.event_source_type == 'cloudwatch_event' else false }}
+          has_cloudwatch_logs: ${{ true if parameters.event_source_type == 'cloudwatch_log' else false }}
           has_config: ${{ true if parameters.event_source_type == 'config' else false }}
           has_ddb: ${{ true if parameters.destination_type == 'dynamodb' else false }}
 
@@ -398,7 +398,7 @@ spec:
           has_sqs: ${{ true if parameters.event_source_type == 'sqs' or parameters.destination_type == 'sqs' else false }}
           has_eventbridge: ${{ true if parameters.event_source_type == 'eventbridge' or parameters.destination_type == 'eventbridge' else false }}
           has_cloudwatch_alarm: ${{ true if parameters.event_source_type == 'cloudwatch_alarm' else false }}
-          has_cloudwatch_log: ${{ true if parameters.event_source_type == 'cloudwatch_event' else false }}
+          has_cloudwatch_logs: ${{ true if parameters.event_source_type == 'cloudwatch_log' else false }}
           has_config: ${{ true if parameters.event_source_type == 'config' else false }}
           has_ddb: ${{ true if parameters.destination_type == 'dynamodb' else false }}
 
