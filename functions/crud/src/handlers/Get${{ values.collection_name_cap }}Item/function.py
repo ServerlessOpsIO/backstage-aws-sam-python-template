@@ -63,7 +63,7 @@ def handler(event: APIGatewayProxyEvent, context: LambdaContext) -> Output:
     LOGGER.info('Event', extra={"message_object": event.raw_event})
 
     item_keys = get_keys_from_id(event.path_parameters.get('id', ''))
-    data = _get_item(item_keys)
+    data = _main(item_keys)
 
     if data is None:
         error = ErrorResponseBody(

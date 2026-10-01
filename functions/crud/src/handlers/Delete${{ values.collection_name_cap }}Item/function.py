@@ -55,7 +55,7 @@ def handler(event: APIGatewayProxyEvent, context: LambdaContext) -> Output:
     LOGGER.info('Event', extra={"message_object": event.raw_event})
 
     item_keys = get_keys_from_id(event.path_parameters.get('id', ''))
-    _delete_item(item_keys)
+    _main(item_keys)
 
     response_body = ResponseBody(
         **{

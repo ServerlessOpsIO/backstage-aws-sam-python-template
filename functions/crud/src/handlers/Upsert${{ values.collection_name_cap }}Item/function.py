@@ -73,7 +73,7 @@ def handler(event: APIGatewayProxyEvent, context: LambdaContext) -> Output:
     )
 
     if item_data.id == _id:
-        _upsert_item(item_keys, item_data)
+        _main(item_keys, item_data)
 
         response_body = ResponseBody(
             **{

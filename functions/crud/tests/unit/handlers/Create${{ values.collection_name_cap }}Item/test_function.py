@@ -215,12 +215,11 @@ def test__main(
 ):
     '''Test create item'''
     item_keys = ${{ values.collection_name_cap }}ItemKeys(**{'pk': '${{ values.collection_name_cap }}#1234', 'sk': '${{ values.collection_name_cap }}#1234'})
-    item_data = mock_data
-    mock_fn._main(item_keys, item_data)
+    mock_fn._main(mock_data)
 
     # Check item was created
     r = mock_ddb_table_client.get_item(Key=asdict(item_keys))
-    assert r.get('Item') == { **asdict(item_keys), **asdict(item_data) }
+    assert r.get('Item') == { **asdict(item_keys), **asdict(mock_data) }
 
 
 def test__main_fails_if_item_exists(
@@ -238,9 +237,8 @@ def test__main_fails_if_item_exists(
     )
 
     item_keys = ${{ values.collection_name_cap }}ItemKeys(**{'pk': '${{ values.collection_name_cap }}#1234', 'sk': '${{ values.collection_name_cap }}#1234'})
-    item_data = mock_data
 
     with pytest.raises(
         mock_ddb_table_client.meta.client.exceptions.ConditionalCheckFailedException
     ):
-        mock_fn._main(item_keys, item_data)
+        mock_fn._main(item_keys)

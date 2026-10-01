@@ -13,7 +13,7 @@ from aws_lambda_powertools.utilities.typing import LambdaContext
 if TYPE_CHECKING:
     from types_boto3_dynamodb.type_defs import PutItemInputTablePutItemTypeDef
 
-from common.model.${{ values.collection_name }} import ${{ values.collection_name_cap }}Data, ${{ values.collection_name_cap }}ItemKeys, ${{ values.collection_name_cap }}Item, create_keys, get_id_from_keys
+from common.model.${{ values.collection_name }} import ${{ values.collection_name_cap }}Data, ${{ values.collection_name_cap }}Item, create_keys, get_id_from_keys
 from common.util.dataclasses import lambda_dataclass_response
 
 LOGGER = Logger(utc=True)
@@ -64,7 +64,7 @@ def handler(event: APIGatewayProxyEvent, context: LambdaContext) -> Output:
 
     body = event.body or '{}'
     item_data = ${{ values.collection_name_cap }}Data(**json.loads(body))
-    _id = _create_item(item_data)
+    _id = _main(item_data)
 
     response_body = ResponseBody(
         **{
