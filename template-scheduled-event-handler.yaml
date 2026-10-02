@@ -258,6 +258,32 @@ spec:
                   title: Event Destination Resource Identifier
                   description: Identifier of the event data destination. Differs by destination type e.g. ARN, URL, name. etc.
 
+    - title: Copilot Cloud Agent
+      required: []
+      properties:
+        launch_copilot_agent:
+          title: "Launch Copilot agent?"
+          type: boolean
+          description: Launch a Copilot cloud agent after component creation
+          default: false
+      dependencies:
+        launch_copilot_agent:
+          oneOf:
+            - properties:
+                launch_copilot_agent:
+                  const: false
+            - required:
+                - agent_prompt
+              properties:
+                launch_copilot_agent:
+                  const: true
+                agent_prompt:
+                  title: Agent prompt
+                  type: string
+                  description: Initial prompt to send to the Copilot cloud agent
+                  minLength: 1
+                  ui:widget: textarea
+
   steps:
     - id: fetch
       name: Fetch Entity References
@@ -365,3 +391,23 @@ spec:
       input:
         repoContentsUrl: ${{ steps.publish.output.repoContentsUrl }}
         catalogInfoPath: "/catalog-info.yaml"
+
+    - id: launchCopilotAgent
+      name: Launch Copilot agent
+      if: ${{ parameters.launch_copilot_agent }}
+      action: github:copilot:agent:launch
+      input:
+        repoUrl: github.com?repo=${{ parameters.component_name }}&owner=${{ parameters.github_org }}
+        prompt: ${{ parameters.agent_prompt }}
+
+  output:
+    links:
+      - title: New repository
+        url: ${{ steps.publish.output.remoteUrl }}
+      - title: Repository catalog-info.yaml file
+        url: ${{ steps.publish.output.remoteUrl }}/blob/main/catalog-info.yaml
+      - title: Open in catalog
+        icon: catalog
+        entityRef: ${{ steps.register.output.entityRef }}
+      - title: Launched agent task
+        url: ${{ steps.launchCopilotAgent.output.taskUrl if parameters.launch_copilot_agent else nil }}
