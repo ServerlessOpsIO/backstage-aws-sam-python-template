@@ -320,6 +320,7 @@ spec:
                   const: false
             - required:
                 - agent_prompt
+                - github_auth
               properties:
                 launch_copilot_agent:
                   const: true
@@ -329,6 +330,16 @@ spec:
                   description: Initial prompt to send to the Copilot cloud agent
                   minLength: 1
                   ui:widget: textarea
+                github_auth:
+                  type: string
+                  ui:field: SoRequestUserCredentials
+                  ui:options:
+                    host: github.com
+                    requestUserCredentials:
+                      secretsKey: USER_GITHUB_TOKEN
+                      additionalScopes:
+                        github:
+                          - read:user
 
   steps:
     - id: fetch
@@ -466,6 +477,9 @@ spec:
       input:
         repoUrl: github.com?repo=${{ parameters.component_name }}&owner=${{ parameters.github_org }}
         prompt: ${{ parameters.agent_prompt }}
+        userCredentialsSecretKey: USER_GITHUB_TOKEN
+      secrets:
+        USER_GITHUB_TOKEN: ${{ secrets.USER_GITHUB_TOKEN }}
 
   output:
     links:
