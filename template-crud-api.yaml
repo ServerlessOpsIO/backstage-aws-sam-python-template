@@ -163,6 +163,11 @@ spec:
           type: boolean
           description: Launch a Copilot cloud agent after component creation
           default: false
+        initialize_speckit:
+          title: "Initialize Spec Kit?"
+          type: boolean
+          description: Initialize Spec Kit in the generated project workspace
+          default: false
       dependencies:
         launch_copilot_agent:
           oneOf:
@@ -263,6 +268,11 @@ spec:
         values:
           python_version: ${{ parameters.python_version }}
 
+    - id: initialize-speckit
+      if: ${{ parameters.initialize_speckit }}
+      name: Initialize Spec Kit
+      action: github:copilot:speckit:init
+
     - id: publish
       name: Publish to GitHub
       action: publish:github
@@ -290,7 +300,7 @@ spec:
         repoContentsUrl: ${{ steps.publish.output.repoContentsUrl }}
         catalogInfoPath: "/catalog-info.yaml"
 
-    - id: launchCopilotAgent
+    - id: launch-copilot-agent
       name: Launch Copilot agent
       if: ${{ parameters.launch_copilot_agent }}
       action: github:copilot:agent:launch
