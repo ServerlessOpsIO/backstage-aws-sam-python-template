@@ -1,6 +1,24 @@
 # Architecture
 
-## Physical architecture
+## Infrastructure
+
+### Logical architecture
+
+The service separates the API boundary, business logic, and persistence:
+
+- The API contract defines collection operations, input/output shapes, and
+  required authentication scopes.
+- Authentication and scope authorization guard the API boundary. Any item-level
+  ownership or tenant checks belong in the application logic.
+- Each CRUD operation delegates to its own function, using shared models and
+  key helpers to keep data handling consistent.
+- Persistence stores the collection's items using namespaced composite keys.
+- Logs and metrics expose request and function behavior for operations.
+
+The health endpoint checks the API boundary through a mock response; it does
+not check business logic or persistence.
+
+### Physical architecture
 
 ```text
 Client with Cognito access token
@@ -32,7 +50,73 @@ The API stage is named by `CodeBranch`. Its access log group is
 `/aws/api-gateway/<stack-name>` with seven-day retention. Detailed logging and
 metrics are described in [Observability](observability.md).
 
-## Anatomy of a function
+### CloudFormation template
+
+`template.yaml` is the infrastructure-as-code entry point. Its
+`Transform: AWS::Serverless-2016-10-31` enables AWS SAM resources, which
+CloudFormation expands into the AWS resources needed to deploy the service.
+
+| Section | Purpose |
+| --- | --- |
+| `Parameters` | Supplies domain/system/component metadata, branch stage name, hostname, hosted-zone SSM parameter, and existing Cognito pool ARN. |
+| `Globals.Function` | Sets defaults for the Python runtime, timeout, memory, table environment variable, and Powertools service name. |
+| `Resources` | Declares the table, functions, invoke permissions, API, certificate, API access log group, and API Gateway IAM role. SAM also generates supporting resources such as function execution roles. |
+
+The API's `DefinitionBody` includes `openapi.yaml` through `AWS::Include`.
+That file defines routes, Cognito authorization, and Lambda integration ARNs;
+the function resources define each handler's code location and permissions.
+`Ref` and `GetAtt` connect resources without hard-coding generated names or ARNs.
+
+`cfn-parameters.json` and `cfn-tags.json` provide deployment-action inputs,
+while `samconfig.toml` supplies SAM deployment defaults. See
+[Configuration](configuration.md) for their expression syntax and external
+prerequisites. Validate changes with `sam validate --lint` and package function
+code with `sam build` before deployment.
+
+## Software
+
+### Python
+
+The selected Python version is used by Lambda and recorded in `Pipfile` for
+local development. Handlers use the installable `common` package for shared
+models and utilities, and Powertools for logging and API Gateway event wrapping.
+
+#### Pipenv
+
+##### Virtualenv management
+
+Pipenv isolates this project's runtime and development dependencies from system
+Python and other projects. Install the selected Python version and Pipenv,
+then run `pipenv install --dev` from the generated repository root to create
+the virtual environment and install the `Pipfile` dependencies.
+The local `common` package is installed in editable mode, and `Pipfile.lock`
+records resolved dependency versions for repeatable installs.
+
+##### Executing tasks using the virtualenv
+
+Use `pipenv run <command>` to execute a command inside the project environment
+without activating it manually, or `pipenv shell` for an interactive shell.
+The `Pipfile` defines named tasks: `pipenv run test-unit` runs unit tests;
+`pipenv run test` targets all tests; and `pipenv run pylint` and
+`pipenv run mypy` run the configured check scripts.
+Pipenv manages the development environment, not deployment ZIP contents;
+SAM packages runtime dependencies from each function's `requirements.txt`.
+
+#### Pytest for tests
+
+Pytest discovers tests under `tests/`, as configured by `pytest.ini`.
+The starter unit tests use fixtures for input data and Lambda context,
+Moto for AWS mocking, and `pytest-mock` for deterministic handler dependencies.
+The Pipfile test scripts use `pytest-cov` to report coverage across `src` and
+require at least 95% coverage.
+
+Run a focused test with `pipenv run pytest -vv <test-file>` from the generated
+repository root, then run `pipenv run test-unit` for the unit suite and coverage
+check. Integration and end-to-end directories are placeholders, so these tests
+do not verify the deployed API or its infrastructure. See
+[Common tasks](common-tasks.md#tests) for adding and validating tests.
+
+### Anatomy of a function
 
 For example, `src/handlers/Create${{ values.collection_name_cap }}Item/` contains
 the following files:
@@ -80,7 +164,7 @@ Create uses a conditional `put_item` to avoid overwriting an existing key.
 Upsert uses a conditional `put_item` requiring an existing key: it replaces
 the stored item rather than partially updating attributes.
 
-## Anatomy of a test
+### Anatomy of a test
 
 `tests/unit/handlers/Create${{ values.collection_name_cap }}Item/test_function.py`
 illustrates the starter pattern:
@@ -99,7 +183,7 @@ These tests do not exercise deployed API Gateway, Cognito, DNS, or IAM.
 `tests/integration/` and `tests/ete/` are placeholders, not a supplied live test suite.
 See [Common tasks](common-tasks.md) for validation commands and schema-test guidance.
 
-## Anatomy of mock data and schemas
+### Anatomy of mock data and schemas
 
 Each `data/handlers/<function>/` directory pairs JSON examples with schemas:
 
@@ -116,7 +200,7 @@ Some per-function schemas reference these through `file:./data/common/...`.
 Run fixture-based tools from the repository root so relative paths resolve.
 Schema examples do not automatically enforce validation in production handlers.
 
-## DynamoDB single-table design
+### DynamoDB single-table design
 
 The table's composite primary key has string **partition key `pk`** and string
 **sort key `sk`**. Generic names allow multiple entity types in one table.
@@ -139,7 +223,7 @@ models, and tests consistently; the current extraction logic assumes a simple
 `namespace#id` format. Changing key formats requires a migration plan for existing
 items. No secondary indexes or relationship-query patterns are supplied.
 
-## Repository file layout
+### Repository file layout
 
 ```text
 catalog-info.yaml       Backstage Component and API entities
