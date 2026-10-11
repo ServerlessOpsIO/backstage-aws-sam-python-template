@@ -6,6 +6,9 @@ metadata:
   description: ${{ values.description }}
   annotations:
     github.com/project-slug: ${{ values.github_org }}/${{ values.component_name }}
+{% if values.is_crud %}
+    backstage.io/techdocs-ref: dir:.
+{% endif %}
 spec:
   type: api
   lifecycle: ${{ values.lifecycle }}

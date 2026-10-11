@@ -4,6 +4,10 @@ ${{ values.description }}
 
 The full API can be found in the [OpenAPI document](./openapi.yaml).
 
+The [project handbook](docs/index.md) covers features, project creation,
+configuration, architecture, CI/CD, observability, and common development tasks.
+It is also available in the component's **Docs** tab when Backstage TechDocs is enabled.
+
 
 ## Architecture
 This is an AWS serverless CRUD API backend service. It is built on top of the following AWS services:
