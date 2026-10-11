@@ -14,9 +14,9 @@ name rather than its display title; Account ID uses the exception noted below.
 | --- | --- | --- |
 | Name | Unique component and repository name. | GitHub repository name; Component and API `metadata.name`, `spec.providesApis`, and repository references in `catalog-info.yaml`; `stack_name` in `samconfig.toml`; `info.title` in `openapi.yaml`; headings in `README.md` and `docs/index.md`; `site_name` in `mkdocs.yml`; package metadata in `src/common/setup.py`. `Component` in `cfn-parameters.json` and `org:component` in `cfn-tags.json` resolve from the repository-name workflow variable rather than a literal form value. |
 | Description | Describes the repository, component, and SAM application. | GitHub repository description; Component `metadata.description` in `catalog-info.yaml`; top-level `Description` in `template.yaml`; introductory text in `README.md`. |
-| Owner | Owning group selected from your groups. | GitHub repository Settings → Custom properties → `owner` (the selected group's entity name). The selection is fetched during scaffolding; generated `spec.owner` currently uses the system name instead, as explained below. |
+| Owner | Owning group selected from your groups. | Component and API `spec.owner` in `catalog-info.yaml` use `group:<selected-group-name>`; GitHub repository Settings → Custom properties → `owner` contains the selected group's entity name. |
 | Domain | Catalog domain, also used for deployment metadata and tagging. | `Domain` in `cfn-parameters.json`; `org:domain` in `cfn-tags.json`; GitHub Settings → Custom properties → `domain`. There is no direct domain relationship in the generated `catalog-info.yaml`. |
-| System | Catalog system filtered by the chosen domain. | Component and API `spec.system` in `catalog-info.yaml` (and currently `spec.owner`); `System` in `cfn-parameters.json`; `org:system` in `cfn-tags.json`; the `README.md` heading; GitHub Settings → Custom properties → `system`. |
+| System | Catalog system filtered by the chosen domain. | Component and API `spec.system` in `catalog-info.yaml`; `System` in `cfn-parameters.json`; `org:system` in `cfn-tags.json`; the `README.md` heading; GitHub Settings → Custom properties → `system`. |
 | Environment | Catalog environment filtered by the chosen system; narrows the cloud-account picker. | Scaffolder selection only: the chosen environment is not written to a generated file. `.github/workflows/main.yml` and `.github/workflows/branch.yml` independently set `jobs.deploy.environment: production`. |
 | Account ID | Catalog cloud-account resource related to the environment; its `metadata.title` must contain the AWS account ID. | GitHub Settings → Secrets and variables → Actions → repository secret `DEPLOYMENT_ACCOUNT_ID`; both workflow files reference it in deployment steps. The account ID is not written into application files. GitHub shows the secret's name but does not reveal its saved value; confirm the source catalog entity's title before creation. |
 
@@ -29,11 +29,6 @@ The GitHub organization is visible in the repository URL,
 `metadata.annotations.github.com/project-slug`, and the API definition's `$text`
 URL in `catalog-info.yaml`. The hidden namespace value is not written as
 `metadata.namespace`; it remains a scaffolder input only.
-
-Review ownership after creation: the current template passes the **system name**
-as `owner_name`, so the generated Component and API `spec.owner` use that name
-as a group reference, not the selected Owner. Confirm or correct `catalog-info.yaml`
-to reference the intended owning group.
 
 Choosing an Environment does not configure a matching GitHub environment:
 the generated workflows both explicitly use `production`.

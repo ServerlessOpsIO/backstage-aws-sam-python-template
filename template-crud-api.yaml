@@ -212,7 +212,7 @@ spec:
           domain_name: ${{ parameters.domain | parseEntityRef | pick('name') }}
           system_name: ${{ parameters.system | parseEntityRef | pick('name') }}
           component_name: ${{ parameters.component_name }}
-          owner_name: ${{ parameters.system | parseEntityRef | pick('name') }}
+          owner_name: ${{ parameters.owner | parseEntityRef | pick('name') }}
           description: ${{ parameters.description }}
           api_description: ${{ parameters.api_description }}
           hostname: ${{ parameters.hostname }}
@@ -232,7 +232,7 @@ spec:
           domain_name: ${{ parameters.domain | parseEntityRef | pick('name') }}
           system_name: ${{ parameters.system | parseEntityRef | pick('name') }}
           component_name: ${{ parameters.component_name }}
-          owner_name: ${{ parameters.system | parseEntityRef | pick('name') }}
+          owner_name: ${{ parameters.owner | parseEntityRef | pick('name') }}
           description: ${{ parameters.description }}
           api_description: ${{ parameters.api_description }}
           hostname: ${{ parameters.hostname }}
