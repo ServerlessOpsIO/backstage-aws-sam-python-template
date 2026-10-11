@@ -8,15 +8,17 @@ Handlers use AWS Lambda Powertools `Logger(utc=True)` and
 CloudWatch receives Lambda logs in `/aws/lambda/<physical-function-name>`;
 find the physical name in the stack resources or Lambda console.
 
-The starter logs the incoming event and outgoing proxy output at **DEBUG**.
-Those entries are not normally emitted at the logger's default INFO level.
+Get and Delete log the full incoming event at **INFO**, so those entries are
+emitted at the logger's default INFO level. Create and Upsert log events at
+**DEBUG**, and all four handlers log outgoing proxy outputs at DEBUG.
 For temporary debugging, configure the Powertools `LOG_LEVEL` environment
-variable through SAM and redeploy. Add meaningful, sanitized business logs as
-the service evolves.
+variable through SAM and redeploy, after sanitizing the logged data.
+Add meaningful, sanitized business logs as the service evolves.
 
 Full API events can contain authorization headers, personal information, and
-request bodies. Redact or remove sensitive fields **before** enabling DEBUG in
-a real environment. Never log tokens, credentials, or app-client secrets.
+request bodies. Redact or remove full-event logging **before production use**,
+including the existing INFO calls, and sanitize outputs before enabling DEBUG.
+Never log tokens, credentials, or app-client secrets.
 The template does not specify Lambda log-group retention; set an appropriate
 retention policy for your service.
 
