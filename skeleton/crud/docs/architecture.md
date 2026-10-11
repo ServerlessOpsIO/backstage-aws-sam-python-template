@@ -18,25 +18,140 @@ The service separates the API boundary, business logic, and persistence:
 The health endpoint checks the API boundary through a mock response; it does
 not check business logic or persistence.
 
+#### Logical architecture diagram
+
+```mermaid
+flowchart LR
+    Consumer["API consumer"]
+    Boundary["API boundary: authentication, scopes, request validation"]
+    Contract["API contract"]
+    Operations["Create / Read / Update / Delete operations"]
+    Models["Shared data models and key helpers"]
+    Persistence["Item persistence"]
+    Health["Health mock"]
+    Observability["Logs and metrics"]
+
+    Consumer --> Boundary
+    Contract -.->|"Defines routes and constraints"| Boundary
+    Boundary -->|"Accepted CRUD request"| Operations
+    Boundary -->|"Accepted health request"| Health
+    Operations --> Models
+    Operations --> Persistence
+    Boundary --> Observability
+    Operations --> Observability
+```
+
+#### Authentication and authorization call sequence
+
+This example uses an existing app client with the client-credentials flow
+enabled. Interactive clients use their configured OAuth flow instead.
+API Gateway validates access tokens using the configured Cognito authorizer;
+it does not call the Cognito token endpoint for every API request.
+
+```mermaid
+sequenceDiagram
+    participant Client
+    participant Cognito as Cognito OAuth token endpoint
+    participant Gateway as API Gateway
+    participant Authorizer as Cognito User Pool authorizer
+    participant Lambda as CRUD Lambda
+
+    Client->>Cognito: Request access token with client credentials and scope
+    Cognito-->>Client: Access token with granted scopes
+    Client->>Gateway: API request with Authorization header
+    Gateway->>Authorizer: Validate token and operation scope
+    Note over Gateway,Authorizer: API Gateway authorization step, not a per-request token-endpoint call
+    alt Missing, invalid, or expired token
+        Authorizer-->>Gateway: Authentication rejected
+        Gateway-->>Client: 401 Unauthorized
+    else Valid token without required scope
+        Authorizer-->>Gateway: Scope authorization rejected
+        Gateway-->>Client: 403 Forbidden
+    else Valid token with required scope
+        Authorizer-->>Gateway: Authorized
+        Note over Gateway: Apply request validation before invoking integration
+        Gateway->>Lambda: Invoke for an accepted CRUD request
+        Note over Lambda: Item ownership and tenant checks are not supplied by the starter
+        Lambda-->>Gateway: Proxy response
+        Gateway-->>Client: HTTP response
+    end
+```
+
+The authorized `/health` route uses a mock integration rather than Lambda.
+The pool, OAuth app client, and resource-server scopes must already exist.
+
+#### Request validation call sequence
+
+The `all` validator in `openapi.yaml` enables body and parameter validation.
+API Gateway checks required parameters for presence/non-blank values, not
+their full declared types or formats. Body validation uses the model matching
+the request content type; without a matching model, validation can be skipped.
+The diagram assumes an authorized CRUD request with a matching JSON model.
+
+```mermaid
+sequenceDiagram
+    participant Client
+    participant Gateway as API Gateway
+    participant Validator as API Gateway request validator
+    participant Lambda as CRUD Lambda
+    participant Table as DynamoDB
+
+    Client->>Gateway: Authorized CRUD request
+    Gateway->>Validator: Check required parameters and applicable body model
+    alt Required parameter missing or blank, or body fails model
+        Validator-->>Gateway: Validation failed
+        Gateway-->>Client: 400 Bad Request without invoking Lambda
+    else Request passes Gateway validation
+        Validator-->>Gateway: Accepted
+        Gateway->>Lambda: Invoke with proxy event
+        Lambda->>Lambda: Parse JSON and construct data model
+        Note over Lambda: Business rules require application checks; dataclasses are not JSON Schema validators
+        Lambda->>Table: Perform operation if application checks pass
+        Table-->>Lambda: Operation result
+        Lambda-->>Gateway: Proxy response
+        Gateway-->>Client: HTTP response
+    end
+```
+
+This depicts the validation boundary, not a guarantee that the starter handles
+all application validation errors correctly. The Create and Update contract
+discrepancies remain subject to separate review.
+
 ### Physical architecture
 
 ```mermaid
 flowchart TD
-    Client["Client with Cognito access token"]
+    Zone["Route 53 hosted zone (existing)"]
+    Record["Route 53 alias record"]
+    Certificate["ACM certificate"]
+    Domain["API Gateway regional custom domain"]
     Api["Regional API Gateway REST API"]
-    Cognito["Cognito User Pool authorizer"]
-    Health["/health mock response"]
-    Functions["Create / Get / Upsert / Delete Lambda functions"]
+    Cognito["Cognito User Pool (existing)"]
+    Create["Create Lambda"]
+    Get["Get Lambda"]
+    Upsert["Upsert Lambda"]
+    Delete["Delete Lambda"]
     Table["DynamoDB table (pk, sk; on-demand capacity)"]
     CloudWatch["CloudWatch logs and metrics"]
 
-    Client -->|"HTTPS (Route 53 hostname, ACM certificate)"| Api
-    Api -->|"Authentication and scope authorization"| Cognito
-    Api -->|"Authorized health request"| Health
-    Api -->|"Authorized CRUD proxy requests"| Functions
-    Functions --> Table
+    Zone --- Record
+    Record -->|"Alias target"| Domain
+    Certificate -->|"TLS certificate"| Domain
+    Domain -->|"Base path mapping"| Api
+    Api -.->|"Authorizer configured with pool ARN"| Cognito
+    Api --> Create
+    Api --> Get
+    Api --> Upsert
+    Api --> Delete
+    Create --> Table
+    Get --> Table
+    Upsert --> Table
+    Delete --> Table
     Api --> CloudWatch
-    Functions --> CloudWatch
+    Create --> CloudWatch
+    Get --> CloudWatch
+    Upsert --> CloudWatch
+    Delete --> CloudWatch
 ```
 
 `template.yaml` owns the DynamoDB table, four Lambda functions and their
@@ -68,6 +183,52 @@ The API's `DefinitionBody` includes `openapi.yaml` through `AWS::Include`.
 That file defines routes, Cognito authorization, and Lambda integration ARNs;
 the function resources define each handler's code location and permissions.
 `Ref` and `GetAtt` connect resources without hard-coding generated names or ARNs.
+
+#### Template resource relationships
+
+Arrows below run from the referencing resource/configuration to its target;
+they show infrastructure references, not request flow. Repeated function and
+permission resources are grouped for readability.
+
+```mermaid
+flowchart TD
+    Hostname["Hostname parameter"]
+    ZoneId["DnsZoneId parameter: resolves existing SSM hosted-zone value"]
+    PoolArn["CognitoUserPoolArn parameter"]
+    Branch["CodeBranch parameter"]
+    Certificate["SiteCertificate: ACM certificate"]
+    Api["RestApi: SAM API"]
+    Logs["RestApiLogGroup: CloudWatch log group"]
+    Role["RestApiIamRole: IAM role"]
+    Table["DdbTable: DynamoDB table"]
+    Functions["Create / Get / Upsert / Delete ItemFunction: SAM functions"]
+    Permissions["Matching ItemFunctionInvokePermission: Lambda permissions"]
+    Definition["openapi.yaml: included API definition"]
+    Generated["SAM-generated domain, base path mapping, and Route 53 record"]
+    ExecutionRoles["SAM-generated function execution roles"]
+
+    Certificate -->|"DomainName"| Hostname
+    Certificate -->|"DNS validation HostedZoneId"| ZoneId
+    Api -->|"DomainName"| Hostname
+    Api -->|"CertificateArn"| Certificate
+    Api -->|"Route53 HostedZoneId"| ZoneId
+    Api -->|"StageName"| Branch
+    Api -->|"AccessLogSetting DestinationArn"| Logs
+    Api -->|"AWS Include DefinitionBody"| Definition
+    Definition -->|"Integration function ARNs"| Functions
+    Definition -->|"Authorizer providerARNs"| PoolArn
+    Functions -->|"Globals DDB_TABLE_NAME"| Table
+    Functions -->|"DynamoDBCrudPolicy"| ExecutionRoles
+    ExecutionRoles -->|"Table-scoped permissions"| Table
+    Permissions -->|"FunctionName ARN"| Functions
+    Role -->|"Policy allows dynamodb:Query"| Table
+    Api -.->|"SAM expands Domain configuration"| Generated
+```
+
+Each invoke permission allows the `apigateway.amazonaws.com` principal.
+`RestApiIamRole` is declared with a DynamoDB query policy, but the current
+OpenAPI integrations do not reference it as integration credentials.
+It is not the account-level API Gateway CloudWatch logging role.
 
 `cfn-parameters.json` and `cfn-tags.json` provide deployment-action inputs,
 while `samconfig.toml` supplies SAM deployment defaults. See
