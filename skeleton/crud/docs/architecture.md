@@ -35,9 +35,27 @@ metrics are described in [Observability](observability.md).
 ## Anatomy of a function
 
 For example, `src/handlers/Create${{ values.collection_name_cap }}Item/` contains
-`function.py`, `requirements.txt`, and `__init__.py`.
-The SAM resource's `CodeUri` points to that directory and its
-`Handler` is `function.handler`.
+the following files:
+
+| File | Purpose |
+| --- | --- |
+| `function.py` | Defines the Lambda entry point `handler`, business logic in `_main`, response dataclasses, logging, and AWS client setup. SAM's `Handler: function.handler` selects this module and callable. |
+| `requirements.txt` | Declares the runtime dependencies SAM packages with this function, including the local common package and Powertools. Keep function-specific dependencies here rather than adding them to every handler. |
+| `__init__.py` | Marks the directory as a Python package for imports, including imports from unit tests. It is empty in the starter and is not the Lambda entry point. |
+
+Each function has its own directory and a SAM `CodeUri` pointing to it so SAM
+can build and deploy a **separate ZIP artifact for each function**, containing
+that function's code and runtime dependencies rather than all handlers and their
+combined dependencies. Tests and mock data live outside these directories and
+are not part of the function artifacts.
+
+This layout keeps artifacts smaller per function and prevents a large dependency
+needed by one function from increasing every other function's package size and
+cold-start overhead. Dependencies placed in the shared common package are still
+included in each function that depends on it, so keep large function-specific
+dependencies out of that package. Separate artifacts avoid unnecessary shared
+startup costs; actual cold-start performance also depends on imports, module
+initialization, and Lambda configuration.
 
 1. Module initialization creates a Powertools logger, a DynamoDB resource in
    `us-east-1`, and the table reference from the environment.
