@@ -42,6 +42,27 @@ handler returns `201`. Resolve these differences when adapting the API.
 See [Architecture](architecture.md) for code and fixture anatomy and
 [Common tasks](common-tasks.md) for customization steps.
 
+## Pipenv for Python virtualenv management
+
+Pipenv manages an isolated Python virtual environment for local development,
+keeping this project's dependencies separate from other projects and your
+system Python. The generated `Pipfile` specifies the selected Python version,
+runtime packages, development tools, and named test/check scripts. It installs
+the local `common` package in editable mode so shared-code changes are available
+without reinstalling that package.
+
+From the generated repository root, use `pipenv install --dev` to create the
+environment and install runtime and development dependencies. Run commands
+inside it with `pipenv run`, such as `pipenv run test-unit`, or enter an
+interactive environment with `pipenv shell`. Install the selected Python version
+and Pipenv first.
+
+Pipenv records resolved dependency versions in `Pipfile.lock`; keep the lockfile
+under version control for repeatable installs. This development environment is
+separate from Lambda deployment packaging: SAM uses each function's
+`requirements.txt`, so Pipfile changes alone do not update deployed dependencies.
+See [Common tasks](common-tasks.md#dependencies) for dependency management.
+
 ## CI/CD and feature branches
 
 GitHub Actions supplies separate main and non-main branch workflows. Both run
