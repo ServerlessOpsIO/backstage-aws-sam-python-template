@@ -20,21 +20,23 @@ not check business logic or persistence.
 
 ### Physical architecture
 
-```text
-Client with Cognito access token
-  |
-  | HTTPS (Route 53 hostname, ACM certificate)
-  v
-Regional API Gateway REST API -- Cognito User Pool authorizer
-  |                       |
-  | CRUD proxy routes     +-- /health mock response
-  v
-Create / Get / Upsert / Delete Lambda functions
-  |
-  v
-DynamoDB table (pk, sk; on-demand capacity)
+```mermaid
+flowchart TD
+    Client["Client with Cognito access token"]
+    Api["Regional API Gateway REST API"]
+    Cognito["Cognito User Pool authorizer"]
+    Health["/health mock response"]
+    Functions["Create / Get / Upsert / Delete Lambda functions"]
+    Table["DynamoDB table (pk, sk; on-demand capacity)"]
+    CloudWatch["CloudWatch logs and metrics"]
 
-Lambda and API Gateway --> CloudWatch logs and metrics
+    Client -->|"HTTPS (Route 53 hostname, ACM certificate)"| Api
+    Api -->|"Authentication and scope authorization"| Cognito
+    Api -->|"Authorized health request"| Health
+    Api -->|"Authorized CRUD proxy requests"| Functions
+    Functions --> Table
+    Api --> CloudWatch
+    Functions --> CloudWatch
 ```
 
 `template.yaml` owns the DynamoDB table, four Lambda functions and their
