@@ -337,6 +337,7 @@ spec:
       input:
         repoUrl: github.com?repo=${{ parameters.component_name }}&owner=${{ parameters.github_org }}
         prompt: ${{ parameters.speckit_constitution }}
+        createPullRequest: true
         userCredentialsSecretKey: USER_GITHUB_TOKEN
       secrets:
         USER_GITHUB_TOKEN: ${{ secrets.USER_GITHUB_TOKEN }}
