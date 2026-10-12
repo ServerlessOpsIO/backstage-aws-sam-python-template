@@ -88,7 +88,7 @@ collection name, before submitting. The scaffolder then:
 
 The results link to the repository, `catalog-info.yaml`, catalog component,
 and optional agent task. Default branch protection is disabled and the required
-approving review count is zero in the publisher configuration; apply your team's
+approving review count is zero in the publisher configuration; apply your
 review policy before development.
 
 ## After creation
