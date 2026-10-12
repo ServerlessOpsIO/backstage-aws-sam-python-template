@@ -66,7 +66,7 @@ integration and log forwarding are configured**. This repository does not
 provision a Datadog integration, forwarder, Lambda extension, log subscriptions,
 dashboards, or Datadog credentials.
 
-Coordinate with the platform team to:
+To make logs and metrics available in Datadog:
 
 1. Enable AWS metric collection for Lambda, API Gateway, and DynamoDB in the
    deployment account/region.
