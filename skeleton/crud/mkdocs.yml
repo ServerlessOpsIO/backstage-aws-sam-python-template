@@ -1,0 +1,13 @@
+site_name: '${{ values.component_name }} handbook'
+site_description: 'Handbook for the generated serverless Python CRUD API'
+plugins:
+  - techdocs-core
+nav:
+  - Handbook: index.md
+  - Features: features.md
+  - Creating a component: creating-a-component.md
+  - Configuration: configuration.md
+  - Architecture: architecture.md
+  - CI/CD pipeline: ci-cd.md
+  - Observability: observability.md
+  - Common tasks: common-tasks.md

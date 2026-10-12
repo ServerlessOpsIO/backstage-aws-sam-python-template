@@ -4,6 +4,10 @@ ${{ values.description }}
 
 The full API can be found in the [OpenAPI document](./openapi.yaml).
 
+The [project handbook](docs/index.md) covers features, project creation,
+configuration, architecture, CI/CD, observability, and common development tasks.
+It is also available in the component's **Docs** tab when Backstage TechDocs is enabled.
+
 
 ## Architecture
 This is an AWS serverless CRUD API backend service. It is built on top of the following AWS services:
@@ -33,7 +37,7 @@ When starting a new project the first place to start with adapting the code to m
 
 Start by modifying the dataclasses to match the shape of your data. Optionally you can choose to replace that interface with one from another module if you're working with a pre-existing data model. The existing interface definition was chosen simply to make the project work out of the box.
 
-Next, modify the `createKeys()` and `getKeys()` functions as necessary. These functions exist to make working with keys consistent across Lambda functions. If you want to prepend a data type to key values as mentioned in the _Database_ section you can do so here.
+Next, modify the `create_keys()` and `get_keys_from_id()` functions as necessary. These functions exist to make working with keys consistent across Lambda functions. If you want to prepend a data type to key values as mentioned in the _Database_ section you can do so here.
 
 
 ### API
