@@ -238,6 +238,37 @@ code with `sam build` before deployment.
 
 ## Software
 
+### Repository file layout
+
+```text
+catalog-info.yaml       Backstage Component and API entities
+mkdocs.yml              TechDocs site configuration
+docs/                   Handbook pages
+README.md               Project entry point
+template.yaml           SAM infrastructure
+openapi.yaml            API contract and Gateway integrations
+cfn-parameters.json     Deployment-action parameter expressions
+cfn-tags.json           Deployment-action tag expressions
+samconfig.toml          SAM deploy defaults
+Pipfile                 Local runtime/dev dependencies and scripts
+pytest.ini              Pytest configuration
+.cfnlintrc              CloudFormation lint configuration
+.github/workflows/      main.yml and branch.yml
+src/common/             Installable common package, setup.py, Makefile
+src/common/common/      Shared model and utility modules
+src/handlers/           Per-function code and requirements.txt
+data/common/            Shared examples and schemas
+data/handlers/          Per-function examples and schemas
+tests/conftest.py       Shared test fixtures and import setup
+tests/unit/handlers/    Per-function unit tests
+tests/integration/      Integration-test placeholders
+tests/ete/              End-to-end-test placeholders
+```
+
+These are generated-project paths. The template source repository keeps their
+inputs separately under `skeleton/base/`, `skeleton/crud/`, `functions/crud/`,
+and `pipeline/` before the scaffolder combines them.
+
 ### Python
 
 The selected Python version is used by Lambda and recorded in `Pipfile` for
@@ -385,34 +416,3 @@ together, for example `customer#123` and `order#456`. Update all three helpers,
 models, and tests consistently; the current extraction logic assumes a simple
 `namespace#id` format. Changing key formats requires a migration plan for existing
 items. No secondary indexes or relationship-query patterns are supplied.
-
-### Repository file layout
-
-```text
-catalog-info.yaml       Backstage Component and API entities
-mkdocs.yml              TechDocs site configuration
-docs/                   Handbook pages
-README.md               Project entry point
-template.yaml           SAM infrastructure
-openapi.yaml            API contract and Gateway integrations
-cfn-parameters.json     Deployment-action parameter expressions
-cfn-tags.json           Deployment-action tag expressions
-samconfig.toml          SAM deploy defaults
-Pipfile                 Local runtime/dev dependencies and scripts
-pytest.ini              Pytest configuration
-.cfnlintrc              CloudFormation lint configuration
-.github/workflows/      main.yml and branch.yml
-src/common/             Installable common package, setup.py, Makefile
-src/common/common/      Shared model and utility modules
-src/handlers/           Per-function code and requirements.txt
-data/common/            Shared examples and schemas
-data/handlers/          Per-function examples and schemas
-tests/conftest.py       Shared test fixtures and import setup
-tests/unit/handlers/    Per-function unit tests
-tests/integration/      Integration-test placeholders
-tests/ete/              End-to-end-test placeholders
-```
-
-These are generated-project paths. The template source repository keeps their
-inputs separately under `skeleton/base/`, `skeleton/crud/`, `functions/crud/`,
-and `pipeline/` before the scaffolder combines them.
