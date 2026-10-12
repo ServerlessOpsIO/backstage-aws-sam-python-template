@@ -65,13 +65,19 @@ changes, also review DNS/TLS and Cognito scopes in
 **Launch Copilot agent?** defaults to false. Leaving it disabled generates the
 service without launching an agent.
 
-If enabled, supply a non-empty **Agent prompt** describing the work to perform
-in the new repository and authorize the GitHub credential request. The
-`SoRequestUserCredentials` field requests credentials under `USER_GITHUB_TOKEN`
-with the additional `read:user` scope. The conditional
-`github:copilot:agent:launch` action launches the agent after publication and
-catalog registration. This requires platform support and appropriate GitHub
-access. Do not put secrets in the prompt.
+If enabled, choose whether to initialize Spec Kit:
+
+- With Spec Kit disabled, supply a non-empty **Agent prompt** describing the
+  work to perform. After publication and catalog registration, the
+  `github:copilot:agent:launch` action launches the agent.
+- With Spec Kit enabled, supply a **Spec Kit constitution** describing the
+  project and its principles. The scaffolder initializes Spec Kit before
+  publication, then the `github:copilot:speckit:constitution` action creates
+  the constitution task.
+
+Both paths request GitHub credentials under `USER_GITHUB_TOKEN` with the
+additional `read:user` scope. They require platform support and appropriate
+GitHub access. Do not put secrets in the prompt or constitution.
 
 ## Review and create
 
