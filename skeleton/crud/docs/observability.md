@@ -61,28 +61,27 @@ service's reliability targets.
 
 ## Availability in Datadog
 
-Logs and metrics can be available in Datadog **when the platform's AWS
-integration and log forwarding are configured**. This repository does not
-provision a Datadog integration, forwarder, Lambda extension, log subscriptions,
-dashboards, or Datadog credentials.
+The Datadog AWS integration and log shipping are **configured automatically in
+all AWS accounts**. Developers do not need to enable the integration or configure
+log forwarding for generated services. Use Datadog to inspect the service's
+AWS metrics and shipped Lambda and API Gateway logs.
 
-To make logs and metrics available in Datadog:
+Baseline tagging is also automatic: `cfn-tags.json` supplies `org:domain`,
+`org:system`, and `org:component`, and `ServerlessOpsIO/gha-deploy-aws-sam` adds
+additional deployment tags. Use the existing tags to locate and distinguish
+resources; extra tagging is only needed for service-specific requirements.
 
-1. Enable AWS metric collection for Lambda, API Gateway, and DynamoDB in the
-   deployment account/region.
-2. Forward both Lambda log groups and the API Gateway access/execution log groups
-   using the organization's approved forwarding mechanism.
-3. Apply consistent service, environment, and branch tags to distinguish stacks.
-   CloudFormation's `org:*` tags and Powertools service names do not by themselves
-   guarantee Datadog's service/environment mapping.
-4. Verify a sanitized test log and recent invocation/API metrics arrive in Datadog.
+After deployment, verify that a sanitized test log and recent invocation/API
+metrics appear in Datadog.
 
 In Datadog Logs Explorer, locate the deployed service or function/log-group
 identifier and narrow the time range, then search the request ID from an error.
 Use Metrics Explorer to inspect the imported AWS metrics and account/region/stage
 dimensions. Exact field names and tags depend on the integration's pipelines.
-If data is missing, first confirm it exists in CloudWatch, then check collection
-permissions, subscriptions, integration filters, and forwarding errors.
+If data is missing, first confirm it exists in CloudWatch and check the Datadog
+time range and resource/tag filters. Treat persistent missing data as a problem
+with the existing collection or shipping configuration, not a requirement to
+set up a new integration.
 
 ## Request investigation checklist
 
