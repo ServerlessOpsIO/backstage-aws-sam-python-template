@@ -8,7 +8,7 @@ Keep it current as the service's model, infrastructure, and workflows change.
 - [Configuration](configuration.md): deployment parameters, tags, and prerequisites.
 - [Architecture](architecture.md): AWS resources, function and test anatomy, and repository layout.
 - [CI/CD pipeline](ci-cd.md): build, deployment, and feature branches.
-- [Observability](observability.md): logs, metrics, and Datadog integration requirements.
+- [Observability](observability.md): logs, metrics, and automatic Datadog integration.
 - [Common tasks](common-tasks.md): add endpoints, functions, dependencies, fixtures, and tests.
 
 ## Reading in Backstage
