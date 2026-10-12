@@ -32,7 +32,7 @@ The build job executes these steps in order:
    the build output for the deploy job.
 
 Integration/end-to-end tests, Python lint/type-check scripts, and TechDocs
-generation are not steps in these workflows. Add them explicitly if your team
+generation are not steps in these workflows. Add them explicitly if your project
 requires them; do not assume the build exercises the live API.
 
 ## Deploy job
@@ -50,7 +50,7 @@ GitHub environment named **`production`** in both workflows.
 The shared actions implement artifact handling, credential assumptions, and
 parameter/tag expression resolution. Their internals are external to this
 repository. Confirm the expected IAM roles, region, artifact storage, and
-stack-name behavior with the platform team.
+stack-name behavior against the shared actions' configuration.
 
 See [Configuration](configuration.md) for parameter files, tags, secrets,
 DNS/Cognito prerequisites, and SAM defaults. GitHub environment protection
