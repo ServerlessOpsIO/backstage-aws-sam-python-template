@@ -105,7 +105,7 @@ sequenceDiagram
         Validator-->>Gateway: Accepted
         Gateway->>Lambda: Invoke with proxy event
         Lambda->>Lambda: Parse JSON and construct data model
-        Note over Lambda: Business rules require application checks; dataclasses are not JSON Schema validators
+        Note over Lambda: Business rules require application checks. Dataclasses are not JSON Schema validators
         Lambda->>Table: Perform operation if application checks pass
         Table-->>Lambda: Operation result
         Lambda-->>Gateway: Proxy response
