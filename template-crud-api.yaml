@@ -214,7 +214,7 @@ spec:
                           description: Describe the project and principles for its Spec Kit constitution
                           minLength: 1
                           ui:widget: textarea
-                          default: "This is an AWS serverless REST API written in Python. It uses AWS API Gateway as the API interface, AWS Lambda functions for compute, and DynamoDB as it's Datastore..."
+                          default: "This is an AWS serverless REST API written in Python. It uses AWS API Gateway as the API interface, AWS Lambda functions for compute, and DynamoDB as its datastore..."
 
   steps:
     - id: fetch
