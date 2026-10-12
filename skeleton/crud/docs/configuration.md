@@ -59,8 +59,8 @@ These metadata tags are not runtime configuration or access controls.
   organization's repository or environment settings.
 - AWS OIDC trust and build/deployment roles expected by the shared
   `gha-assume-aws-credentials` action. Account IDs alone do not grant deployment
-  access. Coordinate role names, trust restrictions, region, and artifact storage
-  with the platform team.
+  access. Verify role names, trust restrictions, region, and artifact storage
+  against the shared action's requirements.
 - GitHub environment `production` settings appropriate for **both** workflows,
   including any required approvals and branch restrictions.
 
