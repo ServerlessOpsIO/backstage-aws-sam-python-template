@@ -30,5 +30,5 @@ backticks are relative to the generated repository root.
 ## Content review
 
 Before treating this starter handbook as your service's operational reference,
-have the owning team review its API contract, deployment assumptions, security,
+review its API contract, deployment assumptions, security,
 and runbooks. Template-generated documentation does not constitute human approval.
