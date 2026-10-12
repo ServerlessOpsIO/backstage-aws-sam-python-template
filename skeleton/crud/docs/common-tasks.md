@@ -153,7 +153,7 @@ Existing optional scripts `pipenv run pylint` and `pipenv run mypy` run Python
 checks; the workflows do not run them automatically.
 
 Review the API contract and packaged dependencies, commit the related code,
-schemas, tests, and handbook updates, and open a PR under your team's policy.
+schemas, tests, and handbook updates, and open a PR under your review policy.
 Remember that **pushing a feature branch starts deployment**: complete the
 [branch-isolation setup](ci-cd.md) before pushing.
 
