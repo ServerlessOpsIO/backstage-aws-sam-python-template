@@ -26,6 +26,7 @@ metadata:
     - serverless
     - python
     - messaging
+    - event-driven
     - event-handler
 
 spec:

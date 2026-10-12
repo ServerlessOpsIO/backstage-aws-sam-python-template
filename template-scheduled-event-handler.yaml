@@ -21,6 +21,7 @@ metadata:
     - python
     - scheduled
     - event-handler
+    - event-driven
 
 spec:
   owner: group:00gjdgxs1ur6lsu
