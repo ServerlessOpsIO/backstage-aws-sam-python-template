@@ -72,7 +72,7 @@ If enabled, choose whether to initialize Spec Kit:
   `github:copilot:agent:launch` action launches the agent.
 - With Spec Kit enabled, supply a **Spec Kit constitution** describing the
   project and its principles. The scaffolder initializes Spec Kit before
-  publication, then the `github:copilot:speckit:constitution` action creates
+  publication, then the `github:speckit:constitution` action creates
   the constitution task.
 
 Both paths request GitHub credentials under `USER_GITHUB_TOKEN` with the

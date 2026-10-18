@@ -290,7 +290,7 @@ spec:
     - id: initialize-speckit
       if: ${{ parameters.launch_copilot_agent and parameters.initialize_speckit }}
       name: Initialize Spec Kit
-      action: github:copilot:speckit:init
+      action: github:speckit:init
 
     - id: publish
       name: Publish to GitHub
@@ -333,7 +333,7 @@ spec:
     - id: create-speckit-constitution
       name: Create Spec Kit constitution
       if: ${{ parameters.launch_copilot_agent and parameters.initialize_speckit }}
-      action: github:copilot:speckit:constitution
+      action: github:speckit:constitution
       input:
         repoUrl: github.com?repo=${{ parameters.component_name }}&owner=${{ parameters.github_org }}
         prompt: ${{ parameters.speckit_constitution }}
