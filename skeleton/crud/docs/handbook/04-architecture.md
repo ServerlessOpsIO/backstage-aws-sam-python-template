@@ -165,7 +165,7 @@ receive the table name through `DDB_TABLE_NAME`.
 
 The API stage is named by `CodeBranch`. Its access log group is
 `/aws/api-gateway/<stack-name>` with seven-day retention. Detailed logging and
-metrics are described in [Observability](observability.md).
+metrics are described in [Observability](06-observability.md).
 
 ### CloudFormation template
 
@@ -232,7 +232,7 @@ It is not the account-level API Gateway CloudWatch logging role.
 
 `cfn-parameters.json` and `cfn-tags.json` provide deployment-action inputs,
 while `samconfig.toml` supplies SAM deployment defaults. See
-[Configuration](configuration.md) for their expression syntax and external
+[Configuration](03-configuration.md) for their expression syntax and external
 prerequisites. Validate changes with `sam validate --lint` and package function
 code with `sam build` before deployment.
 
@@ -243,7 +243,7 @@ code with `sam build` before deployment.
 ```text
 catalog-info.yaml       Backstage Component and API entities
 mkdocs.yml              TechDocs site configuration
-docs/                   Handbook pages
+docs/handbook/          Handbook pages
 README.md               Project entry point
 template.yaml           SAM infrastructure
 openapi.yaml            API contract and Gateway integrations
@@ -308,7 +308,7 @@ Run a focused test with `pipenv run pytest -vv <test-file>` from the generated
 repository root, then run `pipenv run test-unit` for the unit suite and coverage
 check. Integration and end-to-end directories are placeholders, so these tests
 do not verify the deployed API or its infrastructure. See
-[Common tasks](common-tasks.md#tests) for adding and validating tests.
+[Common tasks](07-common-tasks.md#tests) for adding and validating tests.
 
 ### Anatomy of a function
 
@@ -375,7 +375,7 @@ illustrates the starter pattern:
 
 These tests do not exercise deployed API Gateway, Cognito, DNS, or IAM.
 `tests/integration/` and `tests/ete/` are placeholders, not a supplied live test suite.
-See [Common tasks](common-tasks.md) for validation commands and schema-test guidance.
+See [Common tasks](07-common-tasks.md) for validation commands and schema-test guidance.
 
 ### Anatomy of mock data and schemas
 

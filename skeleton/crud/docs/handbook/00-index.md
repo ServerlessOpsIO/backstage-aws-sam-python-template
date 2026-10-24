@@ -3,18 +3,19 @@
 This handbook describes the starter service generated for **${{ values.component_name }}**.
 Keep it current as the service's model, infrastructure, and workflows change.
 
-- [Features](features.md): API definition, starter code, DNS, and Cognito.
-- [Creating a component](creating-a-component.md): Backstage form pages and generated outputs.
-- [Configuration](configuration.md): deployment parameters, tags, and prerequisites.
-- [Architecture](architecture.md): AWS resources, function and test anatomy, and repository layout.
-- [CI/CD pipeline](ci-cd.md): build, deployment, and feature branches.
-- [Observability](observability.md): logs, metrics, and automatic Datadog integration.
-- [Common tasks](common-tasks.md): add endpoints, functions, dependencies, fixtures, and tests.
+- [Features](01-features.md): API definition, starter code, DNS, and Cognito.
+- [Creating a component](02-creating-a-component.md): Backstage form pages and generated outputs.
+- [Configuration](03-configuration.md): deployment parameters, tags, and prerequisites.
+- [Architecture](04-architecture.md): AWS resources, function and test anatomy, and repository layout.
+- [CI/CD pipeline](05-ci-cd.md): build, deployment, and feature branches.
+- [Observability](06-observability.md): logs, metrics, and automatic Datadog integration.
+- [Common tasks](07-common-tasks.md): add endpoints, functions, dependencies, fixtures, and tests.
 
 ## Reading in Backstage
 
 The component's `catalog-info.yaml` contains `backstage.io/techdocs-ref: dir:.`.
-TechDocs uses the repository-root `mkdocs.yml` and the Markdown files in `docs/`.
+TechDocs uses the repository-root `mkdocs.yml` and the Markdown files in
+`docs/handbook/`.
 Open the component in the catalog and select **Docs**.
 
 The platform must enable the TechDocs frontend and backend and configure either
