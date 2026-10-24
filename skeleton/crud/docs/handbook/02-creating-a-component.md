@@ -12,7 +12,7 @@ name rather than its display title; Account ID uses the exception noted below.
 
 | Input | Purpose | Where to see it after creation |
 | --- | --- | --- |
-| Name | Unique component and repository name. | GitHub repository name; Component and API `metadata.name`, `spec.providesApis`, and repository references in `catalog-info.yaml`; `stack_name` in `samconfig.toml`; `info.title` in `openapi.yaml`; headings in `README.md` and `docs/index.md`; `site_name` in `mkdocs.yml`; package metadata in `src/common/setup.py`. `Component` in `cfn-parameters.json` and `org:component` in `cfn-tags.json` resolve from the repository-name workflow variable rather than a literal form value. |
+| Name | Unique component and repository name. | GitHub repository name; Component and API `metadata.name`, `spec.providesApis`, and repository references in `catalog-info.yaml`; `stack_name` in `samconfig.toml`; `info.title` in `openapi.yaml`; headings in `README.md` and `docs/handbook/00-index.md`; `site_name` in `mkdocs.yml`; package metadata in `src/common/setup.py`. `Component` in `cfn-parameters.json` and `org:component` in `cfn-tags.json` resolve from the repository-name workflow variable rather than a literal form value. |
 | Description | Describes the repository, component, and SAM application. | GitHub repository description; Component `metadata.description` in `catalog-info.yaml`; top-level `Description` in `template.yaml`; introductory text in `README.md`. |
 | Owner | Owning group selected from your groups. | Component and API `spec.owner` in `catalog-info.yaml` use `group:<selected-group-name>`; GitHub repository Settings → Custom properties → `owner` contains the selected group's entity name. |
 | Domain | Catalog domain, also used for deployment metadata and tagging. | `Domain` in `cfn-parameters.json`; `org:domain` in `cfn-tags.json`; GitHub Settings → Custom properties → `domain`. There is no direct domain relationship in the generated `catalog-info.yaml`. |
@@ -38,7 +38,7 @@ the generated workflows both explicitly use `production`.
 | Input | Purpose | Where to see it after creation |
 | --- | --- | --- |
 | Hostname | Fully qualified API DNS name for TLS, the custom domain, and DNS record. | Literal `Hostname` in `cfn-parameters.json`. In `template.yaml`, `SiteCertificate.Properties.DomainName` and `RestApi.Properties.Domain.DomainName` reference this parameter; the API's `Domain.Route53` configures its DNS record. In `openapi.yaml`, `servers` and security scopes use `Fn::Sub` expressions referencing `${Hostname}`, resolved during deployment rather than replaced with a literal hostname during scaffolding. |
-| Path Prefix | Prefix before the collection path, such as `/v1`; defaults to `/v1`. Include the leading slash and avoid a trailing slash. | Collection keys under `paths` in `openapi.yaml`; `resource`, `path`, and `requestContext.path` in `data/handlers/<FunctionName>/event.json`; rendered route examples in `docs/features.md`. It does not change `/health` or become a separate stack parameter. |
+| Path Prefix | Prefix before the collection path, such as `/v1`; defaults to `/v1`. Include the leading slash and avoid a trailing slash. | Collection keys under `paths` in `openapi.yaml`; `resource`, `path`, and `requestContext.path` in `data/handlers/<FunctionName>/event.json`; rendered route examples in `docs/handbook/01-features.md`. It does not change `/health` or become a separate stack parameter. |
 | Collection Name | Collection path segment and source/model naming input. Use a valid Python module name, for example `thing`; hyphens produce invalid imports. | Paths, schema names, and scopes in `openapi.yaml`; function logical IDs and `CodeUri` paths in `template.yaml`; `src/handlers/<FunctionName>/`, `tests/unit/handlers/<FunctionName>/`, and `data/handlers/<FunctionName>/` directory names; the model filename and `COLLECTION_NAME` constant in `src/common/common/model/<collection>.py`; collection example/schema filenames and namespaced keys in `data/common/`. |
 | API Description | Describes the API separately from the component. | `info.description` in `openapi.yaml` and the API entity's `metadata.description` in `catalog-info.yaml`, not the Component entity's description. |
 | Python Version | Selects 3.13 or 3.14 (default 3.14) for Lambda, local dependency metadata, and CI. | `Globals.Function.Runtime` in `template.yaml`; `[requires].python_version` in `Pipfile`; `python_requires` and Python classifier in `src/common/setup.py`; Python/pip commands in `src/common/Makefile`; `python_version` under the Python setup step in both `.github/workflows/main.yml` and `.github/workflows/branch.yml`. |
@@ -58,7 +58,7 @@ These values are copied into multiple files at creation time, not maintained by
 a single live configuration source. If you rename a collection or change the
 Python version later, update all relevant locations together. For hostname
 changes, also review DNS/TLS and Cognito scopes in
-[Configuration](configuration.md) and [Features](features.md).
+[Configuration](03-configuration.md) and [Features](01-features.md).
 
 ## Page 3: Copilot Cloud Agent
 
@@ -100,9 +100,9 @@ review policy before development.
 ## After creation
 
 - Confirm catalog ownership and relationships.
-- Complete [deployment configuration](configuration.md) before assuming the
+- Complete [deployment configuration](03-configuration.md) before assuming the
   initial push can deploy successfully.
-- Review [branch deployment isolation](ci-cd.md) before pushing additional branches.
-- Open the component's **Docs** tab, or read `docs/index.md` in the repository.
-- Adapt the model and contract using [Common tasks](common-tasks.md), and request
+- Review [branch deployment isolation](05-ci-cd.md) before pushing additional branches.
+- Open the component's **Docs** tab, or read `docs/handbook/00-index.md` in the repository.
+- Adapt the model and contract using [Common tasks](07-common-tasks.md), and request
   human review of the generated handbook.

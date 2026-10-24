@@ -4,7 +4,7 @@ ${{ values.description }}
 
 The full API can be found in the [OpenAPI document](./openapi.yaml).
 
-The [project handbook](docs/index.md) covers features, project creation,
+The [project handbook](docs/handbook/00-index.md) covers features, project creation,
 configuration, architecture, CI/CD, observability, and common development tasks.
 It is also available in the component's **Docs** tab when Backstage TechDocs is enabled.
 

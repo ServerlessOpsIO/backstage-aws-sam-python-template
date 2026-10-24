@@ -28,7 +28,7 @@ Use synthetic data and mocked credentials for tests.
    arbitrary fields.
 3. Update OpenAPI request/response schemas, including required fields and
    status codes. Address the starter contract differences listed in
-   [Features](features.md).
+   [Features](01-features.md).
 4. Update common and per-handler examples/schemas and their tests.
 5. If you change key format, update `create_keys()`, `get_keys_from_id()`, and
    `get_id_from_keys()` together and plan migration of existing records.
@@ -68,7 +68,7 @@ The existing `/health` mock is not a substitute for exercising a new Lambda rout
 2. Keep `handler(event, context)` as the entry point and separate business
    logic into `_main` or shared modules. For API handlers, use the existing
    Powertools event wrapper, structured logger, output dataclass, and response
-   conversion pattern described in [Architecture](architecture.md).
+   conversion pattern described in [Architecture](04-architecture.md).
 3. Add an `AWS::Serverless::Function` to `template.yaml` with its `CodeUri` and
    `Handler: function.handler`. It inherits the runtime, timeout, memory, and
    table environment variable from Globals unless overridden.
@@ -155,7 +155,7 @@ checks; the workflows do not run them automatically.
 Review the API contract and packaged dependencies, commit the related code,
 schemas, tests, and handbook updates, and open a PR under your review policy.
 Remember that **pushing a feature branch starts deployment**: complete the
-[branch-isolation setup](ci-cd.md) before pushing.
+[branch-isolation setup](05-ci-cd.md) before pushing.
 
 After deployment, smoke-test authentication and behavior with disposable data,
 inspect logs/metrics, and obtain human review. Unit tests cannot prove that DNS,

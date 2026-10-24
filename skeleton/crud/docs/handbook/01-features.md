@@ -39,8 +39,8 @@ though create generates it; its response schema describes `request_id` but
 requires `id`, while the handler returns `id`. PUT declares `200` but the
 handler returns `201`. Resolve these differences when adapting the API.
 
-See [Architecture](architecture.md) for code and fixture anatomy and
-[Common tasks](common-tasks.md) for customization steps.
+See [Architecture](04-architecture.md) for code and fixture anatomy and
+[Common tasks](07-common-tasks.md) for customization steps.
 
 ## Pipenv for Python virtualenv management
 
@@ -61,7 +61,7 @@ Pipenv records resolved dependency versions in `Pipfile.lock`; keep the lockfile
 under version control for repeatable installs. This development environment is
 separate from Lambda deployment packaging: SAM uses each function's
 `requirements.txt`, so Pipfile changes alone do not update deployed dependencies.
-See [Common tasks](common-tasks.md#dependencies) for dependency management.
+See [Common tasks](07-common-tasks.md#dependencies) for dependency management.
 
 ## CI/CD and feature branches
 
@@ -69,7 +69,7 @@ GitHub Actions supplies separate main and non-main branch workflows. Both run
 unit tests, validate and build with SAM, and deploy after a successful build.
 Branch deployments need deliberate stack and hostname isolation; both workflows
 currently select the `production` GitHub environment.
-See [CI/CD pipeline](ci-cd.md) before pushing a feature branch.
+See [CI/CD pipeline](05-ci-cd.md) before pushing a feature branch.
 
 ## DNS and TLS
 
@@ -77,7 +77,7 @@ The stack creates a DNS-validated ACM certificate, a regional API Gateway
 custom domain, and a Route 53 record for the configured hostname. It obtains
 the hosted zone ID through an existing SSM parameter. The hosted zone and SSM
 parameter are prerequisites, not resources created by this service.
-See [Configuration](configuration.md).
+See [Configuration](03-configuration.md).
 
 ## Cognito authentication and authorization
 

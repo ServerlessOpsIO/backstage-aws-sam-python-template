@@ -52,7 +52,7 @@ These metadata tags are not runtime configuration or access controls.
   the deployment account/region's SSM parameter `/org/dns/ZoneId` (or your chosen
   parameter name). DNS validation must be able to create certificate records.
 - An existing Cognito pool and OAuth app-client/resource-server configuration
-  with the scopes described in [Features](features.md).
+  with the scopes described in [Features](01-features.md).
 - GitHub Actions secrets `AWS_CICD_ACCOUNT_ID`, `DEPLOYMENT_ACCOUNT_ID`, and
   `COGNITO_USER_POOL_ARN`, available to the relevant jobs. The scaffolder only
   explicitly creates `DEPLOYMENT_ACCOUNT_ID`; configure the others through your
@@ -77,5 +77,5 @@ deployment action before deploying.
 when workloads need different sizing or permissions.
 
 The hostname is not branch-qualified by default. See
-[CI/CD pipeline](ci-cd.md) before deploying multiple branches to avoid stack,
+[CI/CD pipeline](05-ci-cd.md) before deploying multiple branches to avoid stack,
 custom-domain, and DNS collisions.

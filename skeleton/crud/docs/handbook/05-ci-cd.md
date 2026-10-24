@@ -52,7 +52,7 @@ parameter/tag expression resolution. Their internals are external to this
 repository. Confirm the expected IAM roles, region, artifact storage, and
 stack-name behavior against the shared actions' configuration.
 
-See [Configuration](configuration.md) for parameter files, tags, secrets,
+See [Configuration](03-configuration.md) for parameter files, tags, secrets,
 DNS/Cognito prerequisites, and SAM defaults. GitHub environment protection
 rules can require deployment approval or restrict which branches deploy.
 
@@ -90,5 +90,5 @@ Inspect the GitHub Actions build and deploy logs, then check the deployed
 CloudFormation stack's status and resources. Smoke-test `/health` with an access
 token containing its scope, then test CRUD behavior against disposable data.
 Health uses a mock integration and does not establish that Lambda or DynamoDB
-is healthy. Use [Observability](observability.md) to correlate application
+is healthy. Use [Observability](06-observability.md) to correlate application
 requests, errors, and metrics.
